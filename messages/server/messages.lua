@@ -24,21 +24,21 @@
 
 local messages = { }
 
-function createMessage( player, message, messageType, messageGlobalID, hideButton, disableInput )
-	triggerClientEvent( player, "messages:create", player, message, messageType, messageGlobalID, hideButton, disableInput )
+function createMessage( player, message, messageType, messageGlobalID, hideButton )
+	triggerClientEvent( player, "messages:create", player, message, messageType, messageGlobalID, hideButton )
 end
 
 function destroyMessage( player, messageType, messageGlobalID )
 	triggerClientEvent( player, "messages:destroy", player, messageType, messageGlobalID )
 end
 
-function createGlobalMessage( message, messageType, hideButton, disableInput )
+function createGlobalMessage( message, messageType, hideButton )
 	local messageGlobalID = exports.common:nextIndex( messages )
 
-	messages[ messageGlobalID ] = { message = message, messageType = messageType, hideButton = hideButton, disableInput = disableInput }
+	messages[ messageGlobalID ] = { message = message, messageType = messageType, hideButton = hideButton }
 
 	for _, player in ipairs( getElementsByType( "player" ) ) do
-		createMessage( player, message, messageType, messageGlobalID, hideButton, disableInput )
+		createMessage( player, message, messageType, messageGlobalID, hideButton )
 	end
 	
 	return messageGlobalID
@@ -62,18 +62,16 @@ addEventHandler( "messages:ready", root,
 		end
 		
 		for index, message in pairs( messages ) do
-			createMessage( client, message.message, message.messageType, index, message.hideButton, message.disableInput )
+			createMessage( client, message.message, message.messageType, index, message.hideButton )
 		end
 	end
 )
 
 addEventHandler( "onResourceStop", root,
 	function( resource )
-		if ( getResourceName( resource ) == "vehicles" ) then
-			for _, message in pairs( messages ) do
-				if ( message.messageType == "vehicles-loading" ) then
-					destroyGlobalMessage( message.messageGlobalID )
-				end
+		for _, message in pairs( messages ) do
+			if ( message.messageType == getResourceName( resource ) .. "-loading" ) then
+				destroyGlobalMessage( message.messageGlobalID )
 			end
 		end
 	end

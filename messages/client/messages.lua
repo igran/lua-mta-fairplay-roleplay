@@ -26,14 +26,14 @@ local messages = { global = { }, client = { } }
 local screenWidth, screenHeight = guiGetScreenSize( )
 local messageWidth, messageHeight = 316, 152
 
-function createMessage( message, messageType, messageGlobalID, hideButton, disableInput )
+function createMessage( message, messageType, messageGlobalID, hideButton )
 	destroyMessage( messageType )
 	destroyMessage( nil, nil, messageGlobalID )
 
 	local messageRealm = messageGlobalID and "global" or "client"
 	local messageID = messageGlobalID or exports.common:nextIndex( messages[ messageRealm ] )
 	
-	messages[ messageRealm ][ messageID ] = { messageType = messageType or "other", disableInput = disableInput }
+	messages[ messageRealm ][ messageID ] = { messageType = messageType or "other" }
 	
 	local messageHeight = messageHeight - ( hideButton and 25 or 0 )
 	
@@ -45,7 +45,6 @@ function createMessage( message, messageType, messageGlobalID, hideButton, disab
 	setElementData( messages[ messageRealm ][ messageID ].window, "messages:id", messageID, false )
 	setElementData( messages[ messageRealm ][ messageID ].window, "messages:type", messages[ messageRealm ][ messageID ].messageType, false )
 	setElementData( messages[ messageRealm ][ messageID ].window, "messages:realm", messageRealm, false )
-	setElementData( messages[ messageRealm ][ messageID ].window, "messages:disableInput", disableInput, false )
 	
 	if ( messageRealm == "global" ) then
 		setElementData( messages[ messageRealm ][ messageID ].window, "messages:globalID", messageGlobalID, false )
@@ -56,10 +55,6 @@ function createMessage( message, messageType, messageGlobalID, hideButton, disab
 	guiLabelSetVerticalAlign( messages[ messageRealm ][ messageID ].message, "center" )
 
 	showCursor( true )
-	
-	if ( disableInput ) then
-		guiSetInputEnabled( disableInput )
-	end
 	
 	if ( not hideButton ) then
 		messages[ messageRealm ][ messageID ].button = guiCreateButton( 16, 109, 284, 25, "Continue", false, messages[ messageRealm ][ messageID ].window )	
@@ -78,17 +73,14 @@ addEvent( "messages:create", true )
 addEventHandler( "messages:create", root, createMessage )
 
 function destroyMessage( messageType, messageGlobalID )
-	local disableInput = true
 	if ( not messageGlobalID ) then
 		for index, data in pairs( messages.client ) do
 			if ( data.messageType == messageType ) then
 				if ( isElement( messages.client[ index ].window ) ) then
 					destroyElement( messages.client[ index ].window )
 				end
-
-				disableInput = data.disableInput
-
-				triggerEvent( "messages:onContinue", localPlayer, index, data.messageType, "client", data.disableInput )
+				
+				triggerEvent( "messages:onContinue", localPlayer, index, data.messageType, "client" )
 				
 				messages.client[ index ] = nil
 			end
@@ -98,20 +90,15 @@ function destroyMessage( messageType, messageGlobalID )
 			if ( isElement( messages.global[ messageGlobalID ].window ) ) then
 				destroyElement( messages.global[ messageGlobalID ].window )
 			end
-
-			disableInput = messages.global[ messageGlobalID ].disableInput
-
-			triggerEvent( "messages:onContinue", localPlayer, messageID, messages.global[ messageGlobalID ].messageType, "global", messages.global[ messageGlobalID ].disableInput )
+			
+			triggerEvent( "messages:onContinue", localPlayer, messageID, messages.global[ messageGlobalID ].messageType, "global" )
 			
 			messages.global[ messageGlobalID ] = nil
 		end
 	end
 	
-	if ( not isMessageOpen( ) ) then
+	if ( not isMessageOpen( ) ) or ( isCursorShowing( ) ) then
 		showCursor( false )
-		if ( disableInput ) then
-			guiSetInputEnabled( disableInput )
-		end
 	end
 end
 addEvent( "messages:destroy", true )
@@ -127,7 +114,7 @@ end
 
 addEvent( "messages:onContinue", true )
 addEventHandler( "messages:onContinue", root,
-	function( id, type, realm, disableInput )
+	function( id, type, realm )
 		if ( type == "login" ) then
 			triggerEvent( "accounts:enableGUI", localPlayer )
 		elseif ( type == "selection" ) then
@@ -145,6 +132,11 @@ addEventHandler( "onClientResourceStop", root,
 		if ( getResourceName( resource ) == "accounts" ) then
 			destroyMessage( "login" )
 			destroyMessage( "selection" )
+		end
+		
+		if ( resource == getThisResource( ) ) then
+			showCursor( false )
+			guiSetInputEnabled( false )
 		end
 	end
 )
