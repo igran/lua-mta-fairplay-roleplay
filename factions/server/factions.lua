@@ -69,7 +69,7 @@ function delete( id )
 	local found, index = get( id )
 
 	if ( found ) then
-		if ( exports.database:execute( "DELETE FROM `factions` WHERE `id` = ?", id ) ) then
+		if ( exports.database:execute( "UPDATE `factions` SET `is_deleted` = '1' WHERE `id` = ?", id ) ) then
 			factions[ index ] = nil
 
 			exports.database:execute( "DELETE FROM `factions_characters` WHERE `faction_id` = ?", id )

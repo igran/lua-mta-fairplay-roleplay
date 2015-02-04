@@ -45,7 +45,7 @@ end
 function delete( id )
 	if ( get( id ) ) then
 		if ( unload( id ) ) then
-			if ( exports.database:execute( "DELETE FROM `shops` WHERE `id` = ?", id ) ) then
+			if ( exports.database:execute( "UPDATE `shops` SET `is_deleted` = '1' WHERE `id` = ?", id ) ) then
 				shops[ id ] = nil
 				
 				return true

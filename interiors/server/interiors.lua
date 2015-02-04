@@ -44,7 +44,7 @@ end
 function delete( id )
 	if ( get( id ) ) then
 		if ( unload( id ) ) then
-			if ( exports.database:execute( "DELETE FROM `interiors` WHERE `id` = ?", id ) ) then
+			if ( exports.database:execute( "UPDATE `interiors` SET `is_deleted` = '1' WHERE `id` = ?", id ) ) then
 				return true
 			else
 				load( id )
