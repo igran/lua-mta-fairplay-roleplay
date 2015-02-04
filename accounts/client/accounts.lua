@@ -35,7 +35,13 @@ local maximumUsernameLength = 30
 local minimumPasswordLength = 8
 local maximumPasswordLength = 100
 
+isBackgroundVisible = false
+
 function showBackground( )
+	if ( not isBackgroundVisible ) then
+		return
+	end
+	
 	dxDrawRectangle( 0, 0, screenWidth, screenHeight, tocolor( 0, 0, 0, 0.5 * 255 ), false )
 	dxDrawRectangle( 0, 0, screenWidth, 75, tocolor( 0, 0, 0, 255 ), false )
 	dxDrawRectangle( 0, screenHeight - 75, screenWidth, 75, tocolor( 0, 0, 0, 255 ), false )
@@ -53,7 +59,10 @@ function showLoginMenu( forceEnd )
 		return
 	end
 	
-	addEventHandler( "onClientRender", root, showBackground )
+	if ( not isBackgroundVisible ) then
+		isBackgroundVisible = true
+		addEventHandler( "onClientRender", root, showBackground )
+	end
 	
 	showCursor( true )
 	guiSetInputEnabled( true )
@@ -207,7 +216,11 @@ addEventHandler( "accounts:closeGUI", root,
 
 function onLogin( )
 	triggerEvent( "accounts:closeGUI", localPlayer )
-	removeEventHandler( "onClientRender", root, showBackground )
+	
+	if ( isBackgroundVisible ) then
+		isBackgroundVisible = false
+		removeEventHandler( "onClientRender", root, showBackground )
+	end
 end
 addEvent( "accounts:onLogin", true )
 addEventHandler( "accounts:onLogin", root, onLogin )

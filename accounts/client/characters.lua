@@ -48,7 +48,11 @@ function showCharacterSelection( forceEnd )
 	end
 	
 	triggerEvent( "accounts:showView", localPlayer )
-	addEventHandler( "onClientRender", root, showBackground )
+	
+	if ( not isBackgroundVisible ) then
+		isBackgroundVisible = true
+		addEventHandler( "onClientRender", root, showBackground )
+	end
 	
 	showCursor( true )
 	guiSetInputEnabled( true )
@@ -397,7 +401,10 @@ addEventHandler( "characters:closeGUI", root,
 		showCharacterSelection( true )
 		
 		if ( not hideBackgroundOnSpawn ) then
-			removeEventHandler( "onClientRender", root, showBackground )
+			if ( isBackgroundVisible ) then
+				isBackgroundVisible = false
+				removeEventHandler( "onClientRender", root, showBackground )
+			end
 		end
 	end
 )
@@ -406,7 +413,11 @@ addEvent( "characters:onSpawn", true )
 addEventHandler( "characters:onSpawn", root,
 	function( )
 		setPedCameraRotation( localPlayer, getPedRotation( localPlayer ) - 180 )
-		removeEventHandler( "onClientRender", root, showBackground )
+		
+		if ( isBackgroundVisible ) then
+			isBackgroundVisible = false
+			removeEventHandler( "onClientRender", root, showBackground )
+		end
 	end
 )
 
