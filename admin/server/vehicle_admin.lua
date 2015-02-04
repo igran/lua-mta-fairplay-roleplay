@@ -78,3 +78,27 @@ addCommandHandler( { "createvehicle", "newvehicle", "createveh", "makeveh", "mak
 		end
 	end
 )
+
+addCommandHandler( { "deletevehicle", "removevehicle", "delvehicle", "delveh", "removeveh", "deleteveh" },
+	function( player, cmd, vehicleID )
+		if ( exports.common:isPlayerServerAdmin( player ) ) then
+			local vehicleID = tonumber( vehicleID )
+			
+			if ( vehicleID ) then
+				local vehicle = exports.vehicles:getVehicle( vehicleID )
+				
+				if ( vehicle ) then
+					if ( exports.vehicles:delete( vehicle ) ) then
+						outputChatBox( "You deleted a vehicle with ID " .. vehicleID .. ".", player, 95, 230, 95 )
+					else
+						outputChatBox( "Something went wrong when deleting the vehicle. Please retry.", player, 230, 95, 95 )
+					end
+				else
+					outputChatBox( "Could not find a vehicle with that identifier.", player, 230, 95, 95 )
+				end
+			else
+				outputChatBox( "SYNTAX: /" .. cmd .. " [vehicle id]", player, 230, 180, 95 )
+			end
+		end
+	end
+)
