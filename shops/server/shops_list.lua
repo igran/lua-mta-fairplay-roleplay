@@ -22,7 +22,7 @@
 	SOFTWARE.
 ]]
 
-shops = {
+shopList = {
 	{
 		name = "General Store",
 		sections = {
@@ -44,6 +44,35 @@ shops = {
 					}
 				}
 			}
+		},
+		skins = {
+			287
 		}
 	}
 }
+
+function getShopList( type )
+	return type and shopList[ type ] or shopList
+end
+
+function getShopItem( shopID, itemID, sectionID )
+	local shop = getShopList( shopID )
+	
+	if ( shop ) then
+		local searchFrom = shop.sections
+		
+		if ( sectionID ) then
+			searchFrom = { shop.sections[ sectionID ] }
+		end
+		
+		for _, section in ipairs( searchFrom ) do
+			for index, item in ipairs( section.items ) do
+				if ( item.id == itemID ) then
+					return item
+				end
+			end
+		end
+	end
+	
+	return false
+end

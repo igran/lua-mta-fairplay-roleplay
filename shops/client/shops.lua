@@ -22,9 +22,10 @@
 	SOFTWARE.
 ]]
 
+local screenWidth, screenHeight = guiGetScreenSize( )
 local shopWindow = {
-	buttons = { },
-	sections = { }
+	button = { },
+	section = { }
 }
 local shop
 
@@ -58,7 +59,7 @@ function showShopWindow( forceClose )
 
 	showCursor( true )
 
-	shopWindow.window = guiCreateWindow( ( screenWidth - xx ) / 2, ( screenHeight - xx ) / 2, xx, xx, shop.name, false )
+	shopWindow.window = guiCreateWindow( ( screenWidth - 600 ) / 2, ( screenHeight - 500 ) / 2, 600, 500, "Shop of " .. shop.name:gsub( "_", " " ), false )
 	guiWindowSetSizable( shopWindow.window, false )
 
 	local function purchaseItem( gridList, currentTab )
@@ -73,34 +74,39 @@ function showShopWindow( forceClose )
 			end
 		end
 	end
+	
+	shopWindow.tabPanel = guiCreateTabPanel( 5, 25, 600 - 5 * 2, 500 - ( 25 + 5 * 6 ) * 2, false, shopWindow.window )
 
 	for index, section in ipairs( shop.sections ) do
-		shopWindow.sections[ index ] = { }
-		shopWindow.sections[ index ].tab = guiCreateTab( section.name, shopWindow.tabPanel )
-		shopWindow.sections[ index ].gridlist = guiCreateGridList( 5, 5, 300, 300, false, shopWindow.sections[ index ].tab )
+		shopWindow.section[ index ] = { }
+		shopWindow.section[ index ].tab = guiCreateTab( section.name, shopWindow.tabPanel )
+		shopWindow.section[ index ].gridlist = guiCreateGridList( 5, 5, 600 - 5 * 5 - 4, ( 500 - ( 25 + 5 * 10 ) * 2 ) + 5, false, shopWindow.section[ index ].tab )
 
-		guiGridListAddColumn( shopWindow.sections[ index ].gridlist, "Index", 0.1 )
-		guiGridListAddColumn( shopWindow.sections[ index ].gridlist, "Name", 0.2 )
-		guiGridListAddColumn( shopWindow.sections[ index ].gridlist, "Description", 0.35 )
-		guiGridListAddColumn( shopWindow.sections[ index ].gridlist, "Price ($)", 0.2 )
-		guiGridListAddColumn( shopWindow.sections[ index ].gridlist, "Item ID", 0.1 )
+		guiGridListAddColumn( shopWindow.section[ index ].gridlist, "Index", 0.1 )
+		guiGridListAddColumn( shopWindow.section[ index ].gridlist, "Name", 0.225 )
+		guiGridListAddColumn( shopWindow.section[ index ].gridlist, "Description", 0.4 )
+		guiGridListAddColumn( shopWindow.section[ index ].gridlist, "Price ($)", 0.125 )
+		guiGridListAddColumn( shopWindow.section[ index ].gridlist, "Item ID", 0.1 )
 
-		for index, item in ipairs( section.items ) do
-			local row = guiGridListAddRow( shopWindow.sections[ index ].gridlist )
+		for itemIndex, item in ipairs( section.items ) do
+			local row = guiGridListAddRow( shopWindow.section[ index ].gridlist )
 
-			guiGridListSetItemText( shopWindow.sections[ index ].gridlist, row, 1, index, false, true )
-			guiGridListSetItemText( shopWindow.sections[ index ].gridlist, row, 2, item.name, false, false )
-			guiGridListSetItemText( shopWindow.sections[ index ].gridlist, row, 3, exports.items:getItemDescription( item.id ), false, false )
-			guiGridListSetItemText( shopWindow.sections[ index ].gridlist, row, 4, "$" .. exports.common:formatMoney( item.price ), false, true )
-			guiGridListSetItemText( shopWindow.sections[ index ].gridlist, row, 5, item.id, false, false )
+			guiGridListSetItemText( shopWindow.section[ index ].gridlist, row, 1, itemIndex, false, true )
+			guiGridListSetItemText( shopWindow.section[ index ].gridlist, row, 2, exports.items:getItemName( item.id ), false, false )
+			guiGridListSetItemText( shopWindow.section[ index ].gridlist, row, 3, exports.items:getItemDescription( item.id ), false, false )
+			guiGridListSetItemText( shopWindow.section[ index ].gridlist, row, 4, "$" .. exports.common:formatMoney( item.price ), false, true )
+			guiGridListSetItemText( shopWindow.section[ index ].gridlist, row, 5, item.id, false, false )
 		end
 
-		addEventHandler( "onClientGUIDoubleClick", shopWindow.sections[ index ].gridlist,
+		addEventHandler( "onClientGUIDoubleClick", shopWindow.section[ index ].gridlist,
 			function( )
 				purchaseItem( source, getElementParent( source ) )
 			end, false
 		)
 	end
+	
+	shopWindow.button.purchase = guiCreateButton( 5, 500 - ( ( 25 + 5 * 2 ) * 2 ), 600 - 5 * 2, 25, "Purchase", false, shopWindow.window )
+	shopWindow.button.close = guiCreateButton( 5, 500 - ( 25 + 5 * 2 ), 600 - 5 * 2, 25, "Close window", false, shopWindow.window )
 
 	addEventHandler( "onClientGUIClick", shopWindow.button.purchase,
 		function( )
@@ -122,7 +128,16 @@ addEvent( "shops:open", true )
 addEventHandler( "shops:open", root,
 	function( shopData )
 		shop = shopData
-
+		
 		showShopWindow( )
+	end
+)
+
+addEvent( "shops:enable_gui", true )
+addEventHandler( "shops:enable_gui", root,
+	function( shopData )
+		if ( isElement( shopWindow.window ) ) then
+			
+		end
 	end
 )

@@ -36,4 +36,7 @@
 	<export function="delete" />
 	<export function="load" />
 	<export function="unload" />
+	
+	<export function="getShopList" />
+	<export function="getShopItem" />
 </meta>

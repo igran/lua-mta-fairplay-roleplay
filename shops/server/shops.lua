@@ -38,7 +38,7 @@ function create( x, y, z, interior, dimension, rotation, name, type, modelID, cr
 	local id = exports.database:insert_id( "INSERT INTO `shops` (`pos_x`, `pos_y`, `pos_z`, `interior`, `dimension`, `rotation`, `name`, `type`, `model_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", x or 0, y or 0, z or 0, interior or 0, dimension or 0, rotation or 0, name or "", type or 1, modelID or 0, createdBy or 0 )
 
 	if ( id ) then
-		return load( id, true )
+		return id, load( id, true )
 	end
 end
 
@@ -65,6 +65,8 @@ function load( data, loadFromDatabase )
 		if ( isElement( shop ) ) then
 			setElementInterior( shop, data.interior )
 			setElementDimension( shop, data.dimension )
+			
+			setTimer( setElementFrozen, 125, 1, shop, true )
 
 			exports.security:modifyElementData( shop, "shop:id", data.id, true )
 			exports.security:modifyElementData( shop, "shop:type", data.type, true )
@@ -128,15 +130,23 @@ end
 
 addEventHandler( "onElementClicked", root,
 	function( mouseButton, buttonState, player )
-		local id = exports.common:getShopID( source )
-		local x, y, z = getElementPosition( player )
+		if ( mouseButton == "left" ) and ( buttonState == "up" ) then
+			local id = exports.common:getShopID( source )
+			local x, y, z = getElementPosition( player )
 
-		if ( id ) and 
-		   ( getElementType( source ) == "ped" ) and 
-		   ( getElementInterior( player ) == getElementInterior( source ) ) and 
-		   ( getElementDimension( player ) == getElementDimension( source ) ) and 
-		   ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( source ) ) <= maximumClickDistance ) then
-			triggerClientEvent( player, "shops:open", player, get( id ) )
+			if ( id ) and 
+			   ( getElementType( source ) == "ped" ) and 
+			   ( getElementInterior( player ) == getElementInterior( source ) ) and 
+			   ( getElementDimension( player ) == getElementDimension( source ) ) and 
+			   ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( source ) ) <= maximumClickDistance ) then
+				local shop = get( id )
+				local type = shop and getShopList( shop.type ) or false
+				
+				if ( shop ) and ( type ) then
+					shop.sections = type.sections or { }
+					triggerClientEvent( player, "shops:open", player, shop )
+				end
+			end
 		end
 	end
 )
@@ -147,8 +157,10 @@ addEventHandler( "shops:purchase", root,
 		if ( source ~= client ) then
 			return
 		end
-
+		
 		local shop = get( shopID )
+		local sectionID = tonumber( sectionID )
+		local itemID = tonumber( itemID )
 
 		if ( shop ) then
 			local shopItem = getShopItem( shopID, itemID, sectionID )
@@ -156,13 +168,21 @@ addEventHandler( "shops:purchase", root,
 			if ( shopItem ) then
 				if ( exports.bank:takeMoney( client, shopItem.price ) ) then
 					if ( exports.items:giveItem( client, itemID, exports.items:getItemValue( itemID ) ) ) then
-						outputChatBox( "You purchased a " .. exports.items:getItemName( itemID ) .. " for $" .. exports.common:formatMoney( shopItem.price ) .. ".", 95, 230, 95 )
+						outputChatBox( "You purchased a " .. exports.items:getItemName( itemID ) .. " for $" .. exports.common:formatMoney( shopItem.price ) .. ".", client, 95, 230, 95 )
 					else
-						outputChatBox( "Could not purchase this item, please try again.", 95, 230, 95 )
+						outputChatBox( "Could not purchase this item, please try again (0xFF55FF).", client, 230, 95, 95 )
 						exports.bank:giveMoney( client, shopItem.price )
 					end
+				else
+					outputChatBox( "Could not purchase this item, please try again (0xFFFFEC).", client, 230, 95, 95 )
 				end
+			else
+				outputChatBox( "This item does not appear to be on the list anymore, sorry!", client, 230, 95, 95 )
 			end
+		else
+			outputChatBox( "This shop is closed, sorry!", client, 230, 95, 95 )
 		end
+		
+		triggerClientEvent( client, "shops:open", client )
 	end
 )
