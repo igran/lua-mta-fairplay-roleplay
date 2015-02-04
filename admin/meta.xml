@@ -38,6 +38,7 @@
 	<script src="server/faction_admin.lua" />
 	<script src="server/player_admin.lua" />
 	<script src="server/server.lua" />
+	<script src="server/shop_admin.lua" />
 	<script src="server/vehicle_admin.lua" />
 	<script src="server/teleport_admin.lua" />
 	<script src="server/tickets.lua" />
