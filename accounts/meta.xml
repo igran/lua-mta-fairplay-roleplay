@@ -40,7 +40,7 @@
 	<script src="server/tutorial.lua" />
 	
 	<export function="get" />
-	<export function="new" />
+	<export function="create" />
 	<export function="login" />
 	<export function="logout" />
 	<export function="getCharacter" />

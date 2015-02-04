@@ -22,13 +22,12 @@
 	SOFTWARE.
 ]]
 
-local _get = get
-
+_get = get
 function get( id )
 	return exports.database:query_single( "SELECT * FROM `accounts` WHERE `id` = ?", id )
 end
 
-function new( username, password )
+function create( username, password )
 	local id = exports.database:insert_id( "INSERT INTO `accounts` (`username`, `password`, `created`) VALUES (?, ?, NOW())", username, exports.security:hashString( password ) )
 
 	if ( id ) then
@@ -108,7 +107,7 @@ function register( username, password )
 	local query = exports.database:query_single( "SELECT NULL FROM `accounts` WHERE `username` = ?", username )
 	
 	if ( not query ) then
-		local accountID = new( username, password )
+		local accountID = create( username, password )
 		
 		if ( accountID ) then
 			return accountID
