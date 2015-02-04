@@ -31,14 +31,15 @@
 	<script src="server/vehicles.lua" />
 	
 	<export function="get" />
-	<export function="getVehicle" />
 	<export function="create" />
+	<export function="delete" />
 	<export function="load" />
 	<export function="unload" />
+	<export function="getVehicle" />
 	<export function="reload" />
 	<export function="save" />
-	<export function="saveAllVehicles" />
-	<export function="loadAllVehicles" />
+	<export function="saveAll" />
+	<export function="loadAll" />
 
 	<export function="getModelSet" />
 	<export function="createModelSet" />

@@ -47,7 +47,7 @@ function getVehicleData( id )
 	return vehicles[ id ] or false
 end
 
-function new( modelID, posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, variantA, variantB, ownerID, faction, color, isLocked, isBulletproof, modelSetID )
+function create( modelID, posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, variantA, variantB, ownerID, faction, color, isLocked, isBulletproof, modelSetID )
 	rotX, rotY, rotZ = rotX or 0, rotY or 0, rotZ or 0
 	interior, dimension = interior or 0, dimension or 0
 	variantA, variantB = variantA or 255, variantB or 255
@@ -119,13 +119,13 @@ function load( vehicleID, respawnVehicle, hasCoroutine )
 				colors[ 3 ][ 1 ], colors[ 3 ][ 2 ], colors[ 3 ][ 3 ],
 				colors[ 4 ][ 1 ], colors[ 4 ][ 2 ], colors[ 4 ][ 3 ] )
 			
-			local panels = fromJSON( data.panel_states )
+			local panels = data.panel_states
 			
 			for panelID, panelState in pairs( panels ) do
 				setVehiclePanelState( vehicle, panelID, panelState )
 			end
 			
-			local doors = fromJSON( data.door_states )
+			local doors = data.door_states
 			
 			for doorID, doorState in pairs( doors ) do
 				setVehicleDoorState( vehicle, doorID, doorState )
@@ -138,12 +138,28 @@ function load( vehicleID, respawnVehicle, hasCoroutine )
 	return false
 end
 
+function delete( vehicle )
+	local vehicleID = exports.common:getRealVehicleID( vehicle )
+	
+	if ( unload( vehicle ) ) then
+		if ( exports.database:execute( "UPDATE `vehicles` SET `is_deleted` = '1' WHERE `id` = ?", vehicleID ) ) then
+			vehicles[ vehicleID ] = nil
+			
+			return true
+		else
+			load( getVehicleData( vehicleID ) )
+		end
+	end
+
+	return false
+end
+
 function unload( vehicle )
 	if ( save( vehicle ) ) then
-		local id = exports.common:getRealVehicleID( vehicle )
+		local vehicleID = exports.common:getRealVehicleID( vehicle )
 
-		if ( id ) then
-			vehicles[ id ].vehicle = nil
+		if ( vehicleID ) then
+			vehicles[ vehicleID ].vehicle = nil
 		end
 
 		destroyElement( vehicle )
@@ -182,11 +198,11 @@ function save( vehicle )
 			doors[ i ] = getVehicleDoorState( vehicle, i )
 		end
 		
-		return exports.database:execute( "UPDATE `vehicles` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rot_x` = ?, `rot_y` = ?, `rot_z` = ?, `interior` = ?, `dimension` = ?, `panel_states` = ?, `door_states` = ?, `is_locked` = ?, `is_engine_on` = ?, `is_broken` = ?, `headlight_state` = ?, `attributes` = ? WHERE `id` = ?", posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, toJSON( panels ), toJSON( doors ), isVehicleLocked( vehicle ), getVehicleEngineState( vehicle ), exports.common:isVehicleBroken( vehicle ), getVehicleOverrideLights( vehicle ) == 2, vehicleData.model_set_id or 0, vehicleID )
+		return exports.database:execute( "UPDATE `vehicles` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rot_x` = ?, `rot_y` = ?, `rot_z` = ?, `interior` = ?, `dimension` = ?, `panel_states` = ?, `door_states` = ?, `is_locked` = ?, `is_engine_on` = ?, `is_broken` = ?, `headlight_state` = ?, `model_set_id` = ? WHERE `id` = ?", posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, toJSON( panels ), toJSON( doors ), isVehicleLocked( vehicle ), getVehicleEngineState( vehicle ), exports.common:isVehicleBroken( vehicle ), getVehicleOverrideLights( vehicle ) == 2, vehicleData.model_set_id or 0, vehicleID )
 	end
 end
 
-function saveAllVehicles( )
+function saveAll( )
 	for _, vehicle in ipairs( getElementsByType( "vehicle" ) ) do
 		if ( exports.common:getRealVehicleID( vehicle ) ) then
 			save( vehicle )
@@ -194,7 +210,7 @@ function saveAllVehicles( )
 	end
 end
 
-function loadAllVehicles( )
+function loadAll( )
 	loadingVehiclesGlobalID = exports.messages:createGlobalMessage( "Loading vehicles. Please wait.", "vehicles-loading", true, false )
 	
 	for _, vehicle in ipairs( getElementsByType( "vehicle" ) ) do
@@ -234,8 +250,8 @@ function makeNumberPlate( )
 	local function generate( )
 		math.randomseed( getTickCount( ) )
 
-		numberplate = getRandomString( 2 ) .. math.random( 0, 9 ) .. "-"
-		numberplate = numberplate .. getRandomString( 1 ) .. math.random( 0, 9 ) .. getRandomString( 1 ) .. math.random( 0, 9 )
+		numberplate = exports.common:getRandomString( 2 ) .. math.random( 0, 9 ) .. "-"
+		numberplate = numberplate .. exports.common:getRandomString( 1 ) .. math.random( 0, 9 ) .. exports.common:getRandomString( 1 ) .. math.random( 0, 9 )
 	end
 
 	while ( not numberplate ) or ( isNumberPlateInUse( numberplate ) ) do
@@ -332,7 +348,7 @@ addEventHandler( "onPlayerJoin", root,
 
 addEventHandler( "onResourceStart", resourceRoot,
 	function( )
-		loadAllVehicles( )
+		loadAll( )
 		
 		for _, player in ipairs( getElementsByType( "player" ) ) do
 			bindKeys( player )
@@ -342,7 +358,7 @@ addEventHandler( "onResourceStart", resourceRoot,
 
 addEventHandler( "onResourceStop", resourceRoot,
 	function( )
-		saveAllVehicles( )
+		saveAll( )
 	end
 )
 
@@ -356,7 +372,7 @@ addEventHandler( "onVehicleEnter", root,
 			if ( exports.common:isPlayerServerTrialAdmin( player ) ) then
 				local isFactionVehicle = exports.common:isFactionVehicle( source )
 				local ownerID = exports.common:getVehicleOwner( source )
-				local owner = isFactionVehicle and exports.factions:getFactionByID( ownerID ) or exports.accounts:getCharacter( ownerID )
+				local owner = isFactionVehicle and exports.factions:get( ownerID ) or exports.accounts:getCharacter( ownerID )
 
 				if ( owner ) and ( owner.name ) then
 					outputChatBox( "(( This " .. exports.common:getVehicleName( vehicle ) .. " belongs to " .. owner.name .. ". ))", player, 230, 180, 95 )

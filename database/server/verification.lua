@@ -196,7 +196,7 @@ database.verification = {
 		{ name = "is_deleted", type = "tinyint", length = 1, default = 0, is_unsigned = true },
 		{ name = "is_broken", type = "tinyint", length = 1, default = 0, is_unsigned = true },
 		{ name = "is_bulletproof", type = "tinyint", length = 1, default = 0, is_unsigned = true },
-		{ name = "modelset_id", type = "int", length = 10, default = 0, is_unsigned = true },
+		{ name = "model_set_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "created_by", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "modified", type = "timestamp", default = "NOW()" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
