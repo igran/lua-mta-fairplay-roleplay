@@ -32,6 +32,7 @@
 	<script src="shared/factions.lua" type="shared" cache="false" />
 	<script src="shared/interiors.lua" type="shared" cache="false" />
 	<script src="shared/players.lua" type="shared" cache="false" />
+	<script src="shared/shops.lua" type="shared" cache="false" />
 	<script src="shared/vehicles.lua" type="shared" cache="false" />
 	<script src="shared/worlditems.lua" type="shared" cache="false" />
 	
@@ -106,6 +107,10 @@
 	<export function="getPlayerID" type="shared" />
 	<export function="getPlayerName" type="shared" />
 	<export function="isPlayerPlaying" type="shared" />
+	
+	<!-- shared/shops.lua -->
+	<export function="getShopID" type="shared" />
+	<export function="getShopType" type="shared" />
 	
 	<!-- shared/vehicles.lua -->
 	<export function="getRealVehicleID" type="shared" />
