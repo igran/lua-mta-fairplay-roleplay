@@ -46,6 +46,8 @@ function delete( id )
 	if ( get( id ) ) then
 		if ( unload( id ) ) then
 			if ( exports.database:execute( "DELETE FROM `shops` WHERE `id` = ?", id ) ) then
+				shops[ id ] = nil
+				
 				return true
 			else
 				load( id )
