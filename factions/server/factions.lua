@@ -28,7 +28,8 @@ function getFactions( )
 	return factions
 end
 
-function getFactionByID( id )
+_get = get
+function get( id )
 	for index, faction in pairs( getFactions( ) ) do
 		if ( faction.id == id ) then
 			return faction, index
@@ -38,7 +39,7 @@ function getFactionByID( id )
 	return false
 end
 
-function getFactionByName( name )
+function getByName( name )
 	for index, faction in pairs( getFactions( ) ) do
 		if ( faction.name == name ) then
 			return faction, index
@@ -48,7 +49,7 @@ function getFactionByName( name )
 	return false
 end
 
-function createFaction( name, type )
+function create( name, type )
 	local type = type or 1
 	local ranks = { }
 
@@ -61,11 +62,11 @@ function createFaction( name, type )
 
 	local id = exports.database:insert_id( "INSERT INTO `factions` (`name`, `type`, `ranks`) VALUES (?, ?, ?)", name, type, toJSON( ranks ) )
 
-	return id and loadFaction( id ) or false
+	return id and load( id ) or false
 end
 
-function deleteFaction( id )
-	local found, index = getFactionByID( id )
+function delete( id )
+	local found, index = get( id )
 
 	if ( found ) then
 		if ( exports.database:execute( "DELETE FROM `factions` WHERE `id` = ?", id ) ) then
@@ -80,12 +81,12 @@ function deleteFaction( id )
 	return false
 end
 
-function addCharacterToFaction( characterID, id, rank, isLeader )
+function addCharacter( characterID, id, rank, isLeader )
 	rank = tonumber( rank ) or 1
 	isLeader = type( isLeader ) == "boolean" and isLeader or false
 	
-	if ( not isCharacterInFaction( characterID, id ) ) and ( exports.database:execute( "INSERT INTO `factions_characters` (`character_id`, `faction_id`, `rank`, `is_leader`) VALUES (?, ?, ?, ?)", characterID, id, rank, isLeader ) ) then
-		local faction = getFactionByID( id )
+	if ( not isCharacter( characterID, id ) ) and ( exports.database:execute( "INSERT INTO `factions_characters` (`character_id`, `faction_id`, `rank`, `is_leader`) VALUES (?, ?, ?, ?)", characterID, id, rank, isLeader ) ) then
+		local faction = get( id )
 
 		table.insert( faction.players, { id = characterID, rank = rank, leader = isLeader } )
 
@@ -103,15 +104,15 @@ function addCharacterToFaction( characterID, id, rank, isLeader )
 	return false
 end
 
-function addPlayerToFaction( player, id )
+function addPlayer( player, id )
 	return addCharacterToFaction( exports.common:getCharacterID( player ), id )
 end
 
-function removeCharacterFromFaction( characterID, id )
-	local index = isCharacterInFaction( characterID, id )
+function removeCharacter( characterID, id )
+	local index = isCharacter( characterID, id )
 
 	if ( index ) and ( exports.database:execute( "DELETE FROM `factions_characters` WHERE `character_id` = ? AND `faction_id` = ?", characterID, id ) ) then
-		local faction = getFactionByID( id )
+		local faction = get( id )
 
 		table.remove( faction.players, index )
 
@@ -129,12 +130,12 @@ function removeCharacterFromFaction( characterID, id )
 	return false
 end
 
-function removePlayerFromFaction( player, id )
-	return removeCharacterFromFaction( exports.common:getCharacterID( player ), id )
+function removePlayer( player, id )
+	return removeCharacter( exports.common:getCharacterID( player ), id )
 end
 
-function isCharacterInFaction( characterID, id, checkForLeadership )
-	local faction = getFactionByID( id )
+function isCharacter( characterID, id, checkForLeadership )
+	local faction = get( id )
 
 	if ( faction ) then
 		for index, data in pairs( faction.players ) do
@@ -147,8 +148,8 @@ function isCharacterInFaction( characterID, id, checkForLeadership )
 	return false
 end
 
-function isPlayerInFaction( player, id, checkForLeadership )
-	return isCharacterInFaction( exports.common:getCharacterID( player ), id, checkForLeadership )
+function isPlayer( player, id, checkForLeadership )
+	return isCharacter( exports.common:getCharacterID( player ), id, checkForLeadership )
 end
 
 function getCharacterFactions( characterID )
@@ -171,13 +172,13 @@ function getPlayerFactions( player )
 	return getCharacterFactions( exports.common:getCharacterID( player ) )
 end
 
-function setCharacterFactionRank( characterID, id, rank )
+function setCharacterRank( characterID, id, rank )
 	rank = tonumber( rank ) or 1
 	rank = math.max( 1, math.min( factionRankCount, rank ) )
-	local index = isCharacterInFaction( characterID, id )
+	local index = isCharacter( characterID, id )
 
 	if ( index ) and ( rank ) and ( exports.database:execute( "UPDATE `factions_characters` SET `rank` = ? WHERE `character_id` = ? AND `faction_id` = ?", rank, characterID, id ) ) then
-		local faction = getFactionByID( id )
+		local faction = get( id )
 		
 		
 		faction.players[ index ].rank = rank
@@ -196,16 +197,16 @@ function setCharacterFactionRank( characterID, id, rank )
 	return false
 end
 
-function setPlayerFactionRank( player, id, rank )
-	return setCharacterFactionRank( exports.common:getCharacterID( player ), id, rank )
+function setPlayerRank( player, id, rank )
+	return setCharacterRank( exports.common:getCharacterID( player ), id, rank )
 end
 
-function setCharacterFactionLeader( characterID, id, isLeader )
+function setCharacterLeader( characterID, id, isLeader )
 	isLeader = type( isLeader ) == "boolean" and isLeader or false
-	local index = isCharacterInFaction( characterID, id )
+	local index = isCharacter( characterID, id )
 
 	if ( index ) and ( exports.database:execute( "UPDATE `factions_characters` SET `is_leader` = ? WHERE `character_id` = ? AND `faction_id` = ?", isLeader, characterID, id ) ) then
-		local faction = getFactionByID( id )
+		local faction = get( id )
 		
 		faction.players[ index ].leader = isLeader
 
@@ -223,12 +224,12 @@ function setCharacterFactionLeader( characterID, id, isLeader )
 	return false
 end
 
-function setPlayerFactionLeader( player, id, isLeader )
-	return setCharacterFactionLeader( exports.common:getCharacterID( player ), id, isLeader )
+function setPlayerLeader( player, id, isLeader )
+	return setCharacterLeader( exports.common:getCharacterID( player ), id, isLeader )
 end
 
-function loadFaction( id )
-	local _, index = getFactionByID( id )
+function load( id )
+	local _, index = get( id )
 
 	if ( factions[ index ] ) then
 		factions[ index ] = nil
@@ -284,18 +285,18 @@ function loadFaction( id )
 
 		table.insert( factions, faction )
 
-		return getFactionByID( id )
+		return get( id )
 	end
 
 	return false
 end
 
-function loadFactions( )
+function loadAll( )
 	local query = exports.database:query( "SELECT * FROM `factions`" )
 
 	if ( query ) then
 		for _, data in ipairs( query ) do
-			loadFaction( data.id )
+			load( data.id )
 		end
 
 		return true
@@ -304,11 +305,11 @@ function loadFactions( )
 	return false
 end
 
-function loadPlayerFactions( player )
+function loadPlayer( player )
 	local playerFactions = { }
 	
 	for _, factionID in ipairs( getPlayerFactions( player ) ) do
-		local faction = getFactionByID( factionID )
+		local faction = get( factionID )
 		
 		if ( faction ) then
 			table.insert( playerFactions, faction )
@@ -320,7 +321,7 @@ end
 
 addEventHandler( "onResourceStart", resourceRoot,
 	function( )
-		setTimer( loadFactions, 100, 1 )
+		setTimer( loadAll, 100, 1 )
 	end
 )
 
@@ -331,9 +332,9 @@ addEventHandler( "factions:set_as_main", root,
 			return
 		end
 		
-		local faction = getFactionByID( factionID )
+		local faction = get( factionID )
 		
-		if ( faction ) and ( isPlayerInFaction( client, factionID ) ) then
+		if ( faction ) and ( isInFaction( client, factionID ) ) then
 			if ( exports.common:getPlayerDefaultFaction( client ) ~= factionID ) then
 				if ( exports.database:execute( "UPDATE `characters` SET `default_faction` = ? WHERE `id` = ?", factionID, exports.common:getCharacterID( client ) ) ) then
 					outputChatBox( "You set " .. faction.name .. " as your default faction.", client, 230, 180, 95 )

@@ -43,7 +43,7 @@ addCommandHandler( { "createvehicle", "newvehicle", "createveh", "makeveh", "mak
 							return
 						end
 					else
-						local targetFaction = exports.factions:getFactionByID( ownerID )
+						local targetFaction = exports.factions:get( ownerID )
 						
 						if ( not targetFaction ) then
 							outputChatBox( "No such faction found.", player, 230, 95, 95 )

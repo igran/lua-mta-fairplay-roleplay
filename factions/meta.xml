@@ -30,29 +30,27 @@
 	<script src="shared/factions.lua" type="shared" cache="false" />
 	<script src="server/factions.lua" />
 	
+	<export function="get" />
+	<export function="create" />
+	<export function="delete" />
+	<export function="load" />
+	<export function="loadAll" />
+	
+	<export function="getByName" />
 	<export function="getFactions" />
-	<export function="getFactionByID" />
-	<export function="getFactionByName" />
-	<export function="createFaction" />
-	<export function="deleteFaction" />
-	<export function="addCharacterToFaction" />
-	<export function="addPlayerToFaction" />
-	<export function="removeCharacterFromFaction" />
-	<export function="removePlayerFromFaction" />
-	<export function="isCharacterInFaction" />
-	<export function="isPlayerInFaction" />
+	<export function="addCharacter" />
+	<export function="addPlayer" />
+	<export function="removeCharacter" />
+	<export function="removePlayer" />
+	<export function="isCharacter" />
+	<export function="isPlayer" />
 	<export function="getCharacterFactions" />
 	<export function="getPlayerFactions" />
-	<export function="setCharacterFactionRank" />
-	<export function="setPlayerFactionRank" />
-	<export function="setCharacterFactionRank" />
-	<export function="setPlayerFactionLeader" />
-	<export function="loadPlayerFactions" />
-
-	<!--
-	<export function="loadFaction" />
-	<export function="loadFactions" />
-	-->
+	<export function="setCharacterRank" />
+	<export function="setPlayerRank" />
+	<export function="setCharacterRank" />
+	<export function="setPlayerLeader" />
+	<export function="loadPlayer" />
 	
 	<export function="getFactionType" type="shared" />
 </meta>

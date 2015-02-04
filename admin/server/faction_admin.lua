@@ -29,8 +29,8 @@ addCommandHandler( { "createfaction", "makefaction" },
 			local factionName = table.concat( { ... }, " " )
 			
 			if ( factionType ) and ( factionName ) and ( factionName:len( ) > 1 ) then
-				if ( not exports.factions:getFactionByName( factionName ) ) then
-					local faction = exports.factions:createFaction( factionName, factionType )
+				if ( not exports.factions:getByName( factionName ) ) then
+					local faction = exports.factions:create( factionName, factionType )
 					
 					if ( faction ) then
 						outputChatBox( "You created a faction for " .. faction.name .. " with ID " .. faction.id .. ".", player, 95, 230, 95 )
@@ -47,16 +47,16 @@ addCommandHandler( { "createfaction", "makefaction" },
 	end
 )
 
-addCommandHandler( { "deletefaction", "removefaction" },
+addCommandHandler( { "deletefaction", "removefaction", "delfaction" },
 	function( player, cmd, factionID )
 		if ( exports.common:isPlayerServerSeniorAdmin( player ) ) then
 			local factionID = factionID and tonumber( factionID ) or false
 			
 			if ( factionID ) then
-				local faction = exports.factions:getFactionByID( factionID )
+				local faction = exports.factions:get( factionID )
 				
 				if ( faction ) then
-					if ( exports.factions:deleteFaction( factionID ) ) then
+					if ( exports.factions:delete( factionID ) ) then
 						outputChatBox( "You deleted faction of " .. faction.name .. " (" .. faction.id .. ").", player, 95, 230, 95 )
 					else
 						outputChatBox( "Something went wrong when deleting the faction. Please retry.", player, 230, 95, 95 )
@@ -80,11 +80,11 @@ addCommandHandler( { "addplayerfaction", "addplayertofaction", "addtofaction" },
 				targetPlayer = exports.common:getPlayerFromPartialName( targetPlayer, player )
 				
 				if ( targetPlayer ) then
-					local faction = exports.factions:getFactionByID( factionID )
+					local faction = exports.factions:get( factionID )
 					
 					if ( faction ) then
-						if ( not exports.factions:isPlayerInFaction( targetPlayer, factionID ) ) then
-							if ( exports.factions:addPlayerToFaction( targetPlayer, factionID, rank, isLeader == "1" ) ) then
+						if ( not exports.factions:isPlayer( targetPlayer, factionID ) ) then
+							if ( exports.factions:addPlayer( targetPlayer, factionID, rank, isLeader == "1" ) ) then
 								outputChatBox( "You were added to " .. faction.name .. ".", targetPlayer, 230, 180, 95 )
 								outputChatBox( exports.common:getPlayerName( targetPlayer ) .. " was added to faction " .. faction.name .. " (" .. factionID .. ").", player, 95, 230, 95 )
 							else
@@ -115,11 +115,11 @@ addCommandHandler( { "removeplayerfaction", "removeplayerfromfaction", "removefr
 				targetPlayer = exports.common:getPlayerFromPartialName( targetPlayer, player )
 				
 				if ( targetPlayer ) then
-					local faction = exports.factions:getFactionByID( factionID )
+					local faction = exports.factions:get( factionID )
 					
 					if ( faction ) then
-						if ( exports.factions:isPlayerInFaction( targetPlayer, factionID ) ) then
-							if ( exports.factions:removePlayerFromFaction( targetPlayer, factionID ) ) then
+						if ( exports.factions:isPlayer( targetPlayer, factionID ) ) then
+							if ( exports.factions:removePlayer( targetPlayer, factionID ) ) then
 								outputChatBox( "You were removed from " .. faction.name .. ".", targetPlayer, 230, 180, 95 )
 								outputChatBox( exports.common:getPlayerName( targetPlayer ) .. " was removed from faction " .. faction.name .. " (" .. factionID .. ").", player, 95, 230, 95 )
 							else
@@ -151,11 +151,11 @@ addCommandHandler( { "setplayerfactionrank", "setplayerrank", "changeplayerfacti
 				targetPlayer = exports.common:getPlayerFromPartialName( targetPlayer, player )
 				
 				if ( targetPlayer ) then
-					local faction = exports.factions:getFactionByID( factionID )
+					local faction = exports.factions:get( factionID )
 					
 					if ( faction ) then
-						if ( exports.factions:isPlayerInFaction( targetPlayer, factionID ) ) then
-							local changed, rank = exports.factions:setPlayerFactionRank( targetPlayer, factionID, rank )
+						if ( exports.factions:isPlayer( targetPlayer, factionID ) ) then
+							local changed, rank = exports.factions:setPlayerRank( targetPlayer, factionID, rank )
 							
 							if ( changed ) then
 								outputChatBox( "Your faction rank for " .. faction.name .. " was changed to " .. faction.ranks[ rank ].name .. ".", targetPlayer, 230, 180, 95 )
@@ -189,11 +189,11 @@ addCommandHandler( { "setplayerfactionleader", "setplayerleader", "changeplayerf
 				targetPlayer = exports.common:getPlayerFromPartialName( targetPlayer, player )
 				
 				if ( targetPlayer ) then
-					local faction = exports.factions:getFactionByID( factionID )
+					local faction = exports.factions:get( factionID )
 					
 					if ( faction ) then
-						if ( exports.factions:isPlayerInFaction( targetPlayer, factionID ) ) then
-							if ( exports.factions:setPlayerFactionLeader( targetPlayer, factionID, isLeader ) ) then
+						if ( exports.factions:isPlayer( targetPlayer, factionID ) ) then
+							if ( exports.factions:setPlayerLeader( targetPlayer, factionID, isLeader ) ) then
 								outputChatBox( "Your faction rank leader status for " .. faction.name .. " was changed to " .. ( isLeader and "leader" or "member" ) .. ".", targetPlayer, 230, 180, 95 )
 								outputChatBox( exports.common:getPlayerName( targetPlayer, true ) .. " faction leader status set to " .. ( isLeader and "leader" or "member" ) .. " on " .. faction.name .. ".", player, 95, 230, 95 )
 							else
