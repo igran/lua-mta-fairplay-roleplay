@@ -30,7 +30,6 @@
 	<script src="shared/admin.lua" type="shared" cache="false" />
 	<script src="shared/elements.lua" type="shared" cache="false" />
 	<script src="shared/factions.lua" type="shared" cache="false" />
-	<script src="shared/interiors.lua" type="shared" cache="false" />
 	<script src="shared/players.lua" type="shared" cache="false" />
 	<script src="shared/shops.lua" type="shared" cache="false" />
 	<script src="shared/vehicles.lua" type="shared" cache="false" />
@@ -39,6 +38,7 @@
 	<script src="client/utility.lua" type="client" cache="false" />
 	<script src="client/camera.lua" type="client" cache="false" />
 	<script src="client/cursor.lua" type="client" cache="false" />
+	<script src="client/interiors.lua" type="client" cache="false" />
 	
 	<!-- client/camera.lua -->
 	<export function="smoothMoveCamera" type="client" />
@@ -90,10 +90,7 @@
 	<export function="getFactionID" type="shared" />
 	
 	<!-- shared/interiors.lua -->
-	<export function="getInteriorID" type="shared" />
-	<export function="getInteriorName" type="shared" />
-	<export function="getInteriorOwner" type="shared" />
-	<export function="isFactionInterior" type="shared" />
+	<export function="getInteriorID" type="client" />
 	
 	<!-- shared/players.lua -->
 	<export function="getAccountID" type="shared" />

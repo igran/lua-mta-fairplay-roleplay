@@ -25,16 +25,3 @@
 function getInteriorID( interior )
 	return ( isElement( interior ) and getElementData( interior, "interior:id" ) ) and tonumber( getElementData( interior, "interior:id" ) ) or false
 end
-
-function getInteriorName( interior )
-	return getElementData( interior, "interior:name" ) or false
-end
-
-function getInteriorOwner( interior, doNotAbsolutize )
-	return ( isElement( interior ) and getElementData( interior, "interior:owner" ) ) and ( doNotAbsolutize and tonumber( getElementData( interior, "interior:owner" ) ) or math.abs( tonumber( getElementData( interior, "interior:owner" ) ) ) ) or false
-end
-
-function isFactionInterior( interior )
-	local ownerID = getInteriorOwner( interior, true )
-	return ownerID and ownerID < 0 or false
-end

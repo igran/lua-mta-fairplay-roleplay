@@ -35,4 +35,7 @@
 	<export function="delete" />
 	<export function="load" />
 	<export function="unload" />
+	<export function="loadAll" />
+	
+	<export function="getInteriorConfiguration" type="shared" />
 </meta>

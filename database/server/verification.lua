@@ -100,7 +100,6 @@ database.verification = {
 		{ name = "target_pos_y", type = "float", default = 0 },
 		{ name = "target_pos_z", type = "float", default = 0 },
 		{ name = "target_interior", type = "tinyint", length = 3, default = 0, is_unsigned = true },
-		{ name = "target_dimension", type = "smallint", length = 5, default = 0, is_unsigned = true },
 		{ name = "owner_id", type = "int", length = 10, default = 0 },
 		{ name = "is_deleted", type = "tinyint", length = 1, default = 0 },
 		{ name = "is_locked", type = "tinyint", length = 1, default = 1 },

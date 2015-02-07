@@ -21,3 +21,16 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 ]]
+
+interiorConfiguration = {
+	inside = {
+		{ x = 0, y = 0, z = 3, interior = 1, rotation = 0 }
+	},
+	type = {
+		"House", "Rentable", "Government", "Business"
+	}
+}
+
+function getInteriorConfiguration( )
+	return interiorConfiguration
+end
