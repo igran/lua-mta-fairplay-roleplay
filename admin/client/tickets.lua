@@ -410,7 +410,7 @@ function createTicketWindow( forceEnd, forceClose )
 	
 	showCursor( true, true )
 	
-	newTicket.window = guiCreateWindow( 633, 353, 303, 394, "Create ticket", false )
+	newTicket.window = guiCreateWindow( ( screenWidth - 303 ) / 2, ( screenHeight - 394 ) / 2, 303, 394, "Create ticket", false )
 	guiWindowSetSizable( newTicket.window, false )
 	guiSetAlpha( newTicket.window, 0.9 )
 
