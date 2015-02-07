@@ -67,7 +67,7 @@ addCommandHandler( { "deleteshop", "removeshop", "delshop", "deletestore", "remo
 					if ( exports.shops:delete( shopID ) ) then
 						outputChatBox( "You deleted a shop with ID " .. shopID .. ".", player, 95, 230, 95 )
 					else
-						outputChatBox( "Something went wrong when deleting the faction. Please retry.", player, 230, 95, 95 )
+						outputChatBox( "Something went wrong when deleting the shop. Please retry.", player, 230, 95, 95 )
 					end
 				else
 					outputChatBox( "Could not find a shop with that identifier.", player, 230, 95, 95 )
