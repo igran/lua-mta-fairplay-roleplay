@@ -25,7 +25,7 @@
 local interiors = { }
 local threads = { }
 
-local loadingInteriorsGlobalID
+local loadingInteriorsGlobalID, loadingTimer
 local interiorsToLoadCount = 0
 
 _get = get
@@ -59,12 +59,19 @@ function delete( id )
 	return false
 end
 
-function load( data, loadFromDatabase, ignoreSync )
+function load( data, loadFromDatabase, ignoreSync, hasCoroutine )
 	local data = type( data ) == "table" and data or ( loadFromDatabase and exports.database:query_single( "SELECT * FROM `interiors` WHERE `id` = ? LIMIT 1", data ) or get( data ) )
+	
+	if ( hasCoroutine ) then
+		coroutine.yield( )
+	end
 
 	if ( data ) then
 		interiors[ data.id ] = data
 		interiors[ data.id ].loaded = true
+		interiors[ data.id ].is_disabled = data.is_disabled == 1
+		interiors[ data.id ].is_deleted = data.is_deleted == 1
+		interiors[ data.id ].is_locked = data.is_locked == 1
 		
 		if ( interiors[ data.id ].type ~= 3 ) then
 			if ( not interiors[ data.id ].owner or interiors[ data.id ].owner == 0 ) then
@@ -122,6 +129,16 @@ function unload( id, ignoreSync )
 	return false
 end
 
+function save( id )
+	local interior = get( id )
+
+	if ( interior ) then
+		return exports.database:execute( "UPDATE `interiors` SET `is_disabled` = ?, `is_locked` = ?, `owner_id` = ? WHERE `id` = ?", interior.is_disabled, interior.is_locked, interior.owner_id, id )
+	end
+
+	return false
+end
+
 function loadAll( )
 	loadingInteriorsGlobalID = exports.messages:createGlobalMessage( "Loading interiors. Please wait.", "interiors-loading", true, false )
 	
@@ -136,11 +153,11 @@ function loadAll( )
 		
 		for _, interior in ipairs( query ) do
 			local loadCoroutine = coroutine.create( load )
-			coroutine.resume( loadCoroutine, interior, false, true )
+			coroutine.resume( loadCoroutine, interior, false, true, true )
 			table.insert( threads, loadCoroutine )
 		end
 		
-		setTimer( resumeCoroutines, 1000, 4 )
+		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 	end
 end
 addEventHandler( "onResourceStart", resourceRoot, loadAll )
@@ -150,11 +167,119 @@ function resumeCoroutines( )
 		coroutine.resume( loadCoroutine )
 	end
 	
-	if ( exports.common:count( interiors ) >= interiorsToLoadCount ) then
+	if ( interiorsToLoadCount ) and ( exports.common:count( interiors ) >= interiorsToLoadCount ) then
 		exports.messages:destroyGlobalMessage( loadingInteriorsGlobalID )
+		interiorsToLoadCount = nil
+		
+		if ( isTimer( loadingTimer ) ) then
+			killTimer( loadingTimer )
+		end
 		
 		for _, player in ipairs( getElementsByType( "player" ) ) do
 			triggerClientEvent( player, "interiors:load", player, interiors )
 		end
 	end
 end
+
+addEvent( "interiors:pull", true )
+addEventHandler( "interiors:pull", root,
+	function( )
+		if ( source ~= client ) then
+			return
+		end
+		
+		triggerClientEvent( client, "interiors:load", client, interiors )
+	end
+)
+
+function enter( player, id, isEntrance )
+	if ( isElement( player ) ) and ( id ) then
+		local interior = get( id )
+		
+		if ( interior ) then
+			local marker = getInteriorMarkerData( interior, not isEntrance )
+			
+			if ( marker ) then
+				fadeCamera( player, false, 0.5 )
+				
+				setTimer( function( )
+					if ( isElement( player ) ) then
+						setElementInterior( player, marker.interior, marker.x, marker.y, marker.z )
+						setElementDimension( player, marker.dimension )
+						setPedRotation( player, 0 )
+						
+						setCameraInterior( player, marker.interior )
+						setCameraTarget( player, player )
+						
+						fadeCamera( player, true, 0.5 )
+					end
+				end, 0.5 * 1000, 1 )
+				
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+
+addEvent( "interiors:enter", true )
+addEventHandler( "interiors:enter", root,
+	function( interiorID, isEntrance )
+		if ( source ~= client ) then
+			return
+		end
+		
+		local interior = get( interiorID )
+		
+		if ( interior ) then
+			local x, y, z = isEntrance and interior.pos_x or interior.target_pos_x, isEntrance and interior.pos_y or interior.target_pos_y, isEntrance and interior.pos_z or interior.target_pos_z
+			local _interior, dimension = ( isEntrance and interior.interior or interior.target_interior ), ( isEntrance and interior.dimension or interior.id )
+			
+			if ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( client ) ) <= 1 ) and 
+			   ( getElementInterior( client ) == _interior ) and 
+			   ( getElementDimension( client ) == dimension ) then
+				enter( client, interiorID, isEntrance )
+			end
+		end
+	end
+)
+
+addEvent( "interiors:lock", true )
+addEventHandler( "interiors:lock", root,
+	function( interiorID, isEntrance )
+		if ( source ~= client ) then
+			return
+		end
+		
+		local interior = get( interiorID )
+		
+		if ( interior ) then
+			local x, y, z = isEntrance and interior.pos_x or interior.target_pos_x, isEntrance and interior.pos_y or interior.target_pos_y, isEntrance and interior.pos_z or interior.target_pos_z
+			local _interior, dimension = ( isEntrance and interior.interior or interior.target_interior ), ( isEntrance and interior.dimension or interior.id )
+			
+			if ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( client ) ) <= 1 ) and 
+			   ( getElementInterior( client ) == _interior ) and 
+			   ( getElementDimension( client ) == dimension ) and 
+			   ( ( exports.common:isOnDuty( client ) ) or ( exports.items:has( client, 6, interior.id ) ) ) then
+				interior.is_locked = not interior.is_locked
+				triggerClientEvent( client, "interiors:load", client, { interior }, true )
+				save( interior.id )
+				exports.chat:outputLocalActionMe( client, ( not interior.is_locked and "un" or "" ) .. "locked the interior door." )
+			end
+		end
+	end
+)
+
+addEvent( "interiors:ready", true )
+addEventHandler( "interiors:ready", root,
+	function( )
+		if ( source ~= client ) then
+			return
+		end
+		
+		if ( not interiorsToLoadCount ) then
+			triggerClientEvent( client, "interiors:load", client, interiors )
+		end
+	end
+)

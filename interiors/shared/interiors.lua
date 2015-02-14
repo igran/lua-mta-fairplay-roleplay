@@ -34,3 +34,35 @@ interiorConfiguration = {
 function getInteriorConfiguration( )
 	return interiorConfiguration
 end
+
+function getInteriorMarkerData( data, isEntrance )
+	if ( isEntrance ) then
+		return {
+			x = data.pos_x,
+			y = data.pos_y,
+			z = data.pos_z,
+			interior = data.interior,
+			dimension = data.dimension,
+			target_x = data.target_pos_x,
+			target_y = data.target_pos_y,
+			target_z = data.target_pos_z,
+			target_interior = data.target_interior,
+			target_dimension = data.id
+		}
+	else
+		return {
+			x = data.target_pos_x,
+			y = data.target_pos_y,
+			z = data.target_pos_z,
+			interior = data.target_interior,
+			dimension = data.id,
+			target_x = data.pos_x,
+			target_y = data.pos_y,
+			target_z = data.pos_z,
+			target_interior = data.interior,
+			target_dimension = data.dimension
+		}
+	end
+	
+	return false
+end

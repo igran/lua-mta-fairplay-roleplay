@@ -25,15 +25,84 @@
 local screenWidth, screenHeight = guiGetScreenSize( )
 local interiors = { }
 
+local currentInteriorMarker, isCurrentInteriorMarkerEntrance
+
+function enter( )
+	local interior = interiors[ currentInteriorMarker ]
+	
+	if ( currentInteriorMarker ) and ( interior ) then
+		if ( not exports.common:isPlayerServerAdmin( localPlayer ) ) then
+			if ( interior.is_deleted ) or ( interior.is_disabled ) then
+				return false
+			end
+		end
+		
+		if ( ( interior.owner_id ~= 0 ) or ( interior.type == 3 ) ) and ( interior.is_locked ) then
+			outputChatBox( "That door appears to be locked.", 230, 95, 95 )
+			return false
+		end
+		
+		local interiorMarker = isCurrentInteriorMarkerEntrance and interior.entrance or interior.exit
+		
+		if ( isElement( interiorMarker ) ) then
+			local x, y, z = getElementPosition( interiorMarker )
+			
+			if ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( localPlayer ) ) <= 1 ) and 
+			   ( getElementInterior( localPlayer ) == getElementInterior( interiorMarker ) ) and 
+			   ( getElementDimension( localPlayer ) == getElementDimension( interiorMarker ) ) then
+				if ( interior.owner_id ~= 0 ) or ( interior.type == 3 ) then
+					triggerServerEvent( "interiors:enter", localPlayer, currentInteriorMarker, isCurrentInteriorMarkerEntrance )
+					currentInteriorMarker, isCurrentInteriorMarkerEntrance = nil, nil
+					removeEventHandler( "onClientHUDRender", root, renderInteriorMarkerText )
+				else
+					-- show some payment options here ok
+				end
+				
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+
+function toggleLock( )
+	local interior = interiors[ currentInteriorMarker ]
+	
+	if ( currentInteriorMarker ) and ( interior ) then
+		if ( not exports.common:isPlayerServerAdmin( localPlayer ) ) then
+			if ( interior.is_deleted ) or ( interior.is_disabled ) then
+				return false
+			end
+		end
+		
+		local interiorMarker = isCurrentInteriorMarkerEntrance and interior.entrance or interior.exit
+		
+		if ( isElement( interiorMarker ) ) then
+			local x, y, z = getElementPosition( interiorMarker )
+			
+			if ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( localPlayer ) ) <= 1 ) and 
+			   ( getElementInterior( localPlayer ) == getElementInterior( interiorMarker ) ) and 
+			   ( getElementDimension( localPlayer ) == getElementDimension( interiorMarker ) ) then
+				triggerServerEvent( "interiors:lock", localPlayer, currentInteriorMarker, isCurrentInteriorMarkerEntrance )
+				
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+
 addEvent( "interiors:load", true )
 addEventHandler( "interiors:load", root,
-	function( loadInteriors )
+	function( loadInteriors, softUnload )
 		for index, interior in pairs( loadInteriors ) do
-			triggerEvent( "interiors:unload", localPlayer, { interior.id } )
+			triggerEvent( "interiors:unload", localPlayer, { interior.id }, softUnload )
 			
 			interiors[ interior.id ] = interior
 			
-			local pickupIcon = interior.is_disabled and 1314 or ( interior.owner_id ~= 0 or interior.type == 3 and 1318 or ( interior.type == 4 and 1272 or 1273 ) )
+			local pickupIcon = interior.is_disabled == 1 and 1314 or ( interior.owner_id ~= 0 or interior.type == 3 and 1318 or ( interior.type == 4 and 1272 or 1273 ) )
 			local entranceInterior = createPickup( interior.pos_x, interior.pos_y, interior.pos_z, 3, pickupIcon )
 			setElementInterior( entranceInterior, interior.interior )
 			setElementDimension( entranceInterior, interior.dimension )
@@ -42,14 +111,12 @@ addEventHandler( "interiors:load", root,
 				setElementData( entranceInterior, "interior:id", interior.id, false )
 				setElementData( entranceInterior, "interior:entrance", true, false )
 
-				local exitInterior = createPickup( interior.pos_x, interior.pos_y, interior.pos_z, 3, pickupIcon )
-				setElementInterior( exitInterior, interior.interior )
+				local exitInterior = createPickup( interior.target_pos_x, interior.target_pos_y, interior.target_pos_z, 3, pickupIcon )
+				setElementInterior( exitInterior, interior.target_interior )
 				setElementDimension( exitInterior, interior.id )
 
 				if ( isElement( exitInterior ) ) then
 					setElementData( exitInterior, "interior:id", interior.id, false )
-
-					setElementParent( exitInterior, entranceInterior )
 
 					interiors[ interior.id ].entrance = entranceInterior
 					interiors[ interior.id ].exit = exitInterior
@@ -63,7 +130,7 @@ addEventHandler( "interiors:load", root,
 
 addEvent( "interiors:unload", true )
 addEventHandler( "interiors:unload", root,
-	function( unloadInteriors )
+	function( unloadInteriors, softUnload )
 		for index, id in pairs( unloadInteriors ) do
 			if ( interiors[ id ] ) then
 				if ( isElement( interiors[ id ].entrance ) ) then
@@ -76,8 +143,8 @@ addEventHandler( "interiors:unload", root,
 				
 				interiors[ id ] = nil
 				
-				if ( currentInteriorMarker == id ) then
-					currentInteriorMarker = nil
+				if ( not softUnload ) and ( currentInteriorMarker == id ) then
+					currentInteriorMarker, isCurrentInteriorMarkerEntrance = nil, nil
 				end
 			end
 		end
@@ -90,7 +157,7 @@ addEventHandler( "onClientPickupHit", getResourceDynamicElementRoot( resource ),
 			local id = exports.common:getInteriorID( source )
 			
 			if ( id ) and ( currentInteriorMarker ~= id ) then
-				currentInteriorMarker = id
+				currentInteriorMarker, isCurrentInteriorMarkerEntrance = id, getElementData( source, "interior:entrance" )
 				addEventHandler( "onClientHUDRender", root, renderInteriorMarkerText )
 			end
 		end
@@ -103,10 +170,20 @@ addEventHandler( "onClientPickupLeave", getResourceDynamicElementRoot( resource 
 			local id = exports.common:getInteriorID( source )
 			
 			if ( id ) and ( currentInteriorMarker == id ) then
-				currentInteriorMarker = nil
+				currentInteriorMarker, isCurrentInteriorMarkerEntrance = nil, nil
 				removeEventHandler( "onClientHUDRender", root, renderInteriorMarkerText )
 			end
 		end
+	end
+)
+
+addEventHandler( "onClientResourceStart", resourceRoot,
+	function( )
+		triggerServerEvent( "interiors:ready", localPlayer )
+		
+		bindKey( "enter", "down", enter )
+		bindKey( "f", "down", enter )
+		bindKey( "k", "down", toggleLock )
 	end
 )
 
@@ -115,6 +192,8 @@ local baseYOffset = 250
 
 function renderInteriorMarkerText( )
 	if ( not currentInteriorMarker ) then
+		currentInteriorMarker, isCurrentInteriorMarkerEntrance = nil, nil
+		removeEventHandler( "onClientHUDRender", root, renderInteriorMarkerText )
 		return
 	end
 	
@@ -182,7 +261,15 @@ function renderInteriorMarkerText( )
 	end
 	
 	-- Enter text
-	local text = "Press 'F' or 'Enter' to enter the interior"
+	if ( interior.is_disabled ) and ( interior.is_deleted ) then
+		return
+	else
+		if ( interior.owner_id == 0 ) and ( interior.type ~= 3 ) then
+			text = "Press 'F' or 'Enter' to show payment options"
+		else
+			text = "Press 'F' or 'Enter' to enter the interior"
+		end
+	end
 	
 	local scale = 1
 	local font = "default"
