@@ -25,7 +25,7 @@
 local shops = { }
 local threads = { }
 
-local loadingShopsGlobalID
+local loadingShopsGlobalID, loadingTimer
 local shopsToLoadCount = 0
 local maximumClickDistance = 12.5
 
@@ -58,8 +58,12 @@ function delete( id )
 	return false
 end
 
-function load( data, loadFromDatabase )
+function load( data, loadFromDatabase, hasCoroutine )
 	local data = type( data ) == "table" and data or ( loadFromDatabase and exports.database:query_single( "SELECT * FROM `shops` WHERE `id` = ? LIMIT 1", data ) or get( data ) )
+	
+	if ( hasCoroutine ) then
+		coroutine.yield( )
+	end
 
 	if ( data ) then
 		local shop = createPed( data.model_id, data.pos_x, data.pos_y, data.pos_z, data.rotation, false )
@@ -115,7 +119,7 @@ function loadAllShops( )
 			table.insert( threads, loadCoroutine )
 		end
 		
-		setTimer( resumeCoroutines, 1000, 4 )
+		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 	end
 end
 addEventHandler( "onResourceStart", resourceRoot, loadAllShops )
@@ -127,6 +131,11 @@ function resumeCoroutines( )
 	
 	if ( exports.common:count( shops ) >= shopsToLoadCount ) then
 		exports.messages:destroyGlobalMessage( loadingShopsGlobalID )
+		shopsToLoadCount = nil
+		
+		if ( isTimer( loadingTimer ) ) then
+			killTimer( loadingTimer )
+		end
 	end
 end
 
