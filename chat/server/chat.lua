@@ -163,7 +163,7 @@ function outputLocalChat( player, message, originalDistance )
 					if ( string.find( originalDistance, "r" ) ) then
 						local frequency = string.gsub( originalDistance, "r", "" )
 						
-						if ( exports.items:hasItem( targetPlayer, 13, frequency ) ) or ( getDistanceBetweenPoints3D( posX, posY, posZ, targetX, targetY, targetZ ) <= 20 ) then
+						if ( exports.items:has( targetPlayer, 13, frequency ) ) or ( getDistanceBetweenPoints3D( posX, posY, posZ, targetX, targetY, targetZ ) <= 20 ) then
 							outputChatBox( "[#" .. frequency .. "] " .. prefixes .. exports.common:getPlayerName( player ) .. " says: " .. message, targetPlayer, 95, 95, 220, false )
 						end
 					end

@@ -295,7 +295,7 @@ function spawnCharacter( player, character, fade )
 				setPedArmor( player, character.armor )
 				setPlayerName( player, character.name )
 				
-				exports.items:loadItems( player )
+				exports.items:load( player )
 				exports.factions:loadPlayer( player )
 				
 				triggerClientEvent( player, "characters:onSpawn", player )

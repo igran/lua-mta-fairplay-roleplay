@@ -25,7 +25,7 @@
 local vehicles = { }
 local threads = { }
 
-local loadingVehiclesGlobalID
+local loadingVehiclesGlobalID, loadingTimer
 local vehiclesToLoadCount = 0
 
 _get = get
@@ -62,7 +62,7 @@ function create( modelID, posX, posY, posZ, rotX, rotY, rotZ, interior, dimensio
 	local vehicleID = exports.database:insert_id( "INSERT INTO `vehicles` (`model_id`, `pos_x`, `pos_y`, `pos_z`, `rot_x`, `rot_y`, `rot_z`, `interior`, `dimension`, `respawn_pos_x`, `respawn_pos_y`, `respawn_pos_z`, `respawn_rot_x`, `respawn_rot_y`, `respawn_rot_z`, `respawn_interior`, `respawn_dimension`, `numberplate`, `variant_1`, `variant_2`, `owner_id`, `color`, `is_locked`, `is_bulletproof`, `model_set_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", modelID, posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, posX, posY, posZ, rotX, rotY, rotZ, interior, dimension, numberplate, variantA, variantB, ownerID, color, isLocked, isBulletproof, modelSetID )
 	
 	if ( vehicleID ) and ( not faction ) then
-		exports.items:giveItem( exports.common:getPlayerByCharacterID( ownerID ) or ownerID, 7, vehicleID, nil, nil, nil, true )
+		exports.items:give( exports.common:getPlayerByCharacterID( ownerID ) or ownerID, 7, vehicleID, nil, nil, nil, true )
 	end
 	
 	return vehicleID, load( vehicleID, true )
@@ -230,7 +230,7 @@ function loadAll( )
 			table.insert( threads, loadCoroutine )
 		end
 		
-		setTimer( resumeCoroutines, 1000, 4 )
+		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 	end
 end
 
@@ -239,8 +239,13 @@ function resumeCoroutines( )
 		coroutine.resume( loadCoroutine )
 	end
 	
-	if ( exports.common:count( vehicles ) >= vehiclesToLoadCount ) then
+	if ( vehiclesToLoadCount ) and ( exports.common:count( vehicles ) >= vehiclesToLoadCount ) then
 		exports.messages:destroyGlobalMessage( loadingVehiclesGlobalID )
+		vehiclesToLoadCount = nil
+		
+		if ( isTimer( loadingTimer ) ) then
+			killTimer( loadingTimer )
+		end
 	end
 end
 
@@ -275,7 +280,7 @@ function toggleEngine( player )
 		if ( getVehicleEngineState( vehicle ) ) then
 			setVehicleEngineState( vehicle, false )
 		else
-			if ( ( exports.items:hasItem( player, 7, exports.common:getRealVehicleID( vehicle ) ) ) or ( exports.common:isOnDuty( player ) ) ) then
+			if ( ( exports.items:has( player, 7, exports.common:getRealVehicleID( vehicle ) ) ) or ( exports.common:isOnDuty( player ) ) ) then
 				setVehicleEngineState( vehicle, true )
 			else
 				outputChatBox( "You require a key to turn on the engine of this vehicle.", player, 230, 95, 95 )
@@ -300,7 +305,7 @@ function toggleLock( player )
 			for _, nearbyVehicle in ipairs( getElementsByType( "vehicle", getResourceDynamicElementRoot( resource ) ) ) do
 				local distance = getDistanceBetweenPoints3D( x, y, z, getElementPosition( nearbyVehicle ) )
 				
-				if ( distance < foundDistance ) and ( ( exports.items:hasItem( player, 7, exports.common:getRealVehicleID( nearbyVehicle ) ) ) or ( exports.common:isOnDuty( player ) ) ) then
+				if ( distance < foundDistance ) and ( ( exports.items:has( player, 7, exports.common:getRealVehicleID( nearbyVehicle ) ) ) or ( exports.common:isOnDuty( player ) ) ) then
 					foundVehicle = nearbyVehicle
 					foundDistance = distance
 				end
