@@ -62,6 +62,8 @@ database.verification = {
 		{ name = "dimension", type = "smallint", length = 5, default = 0, is_unsigned = true },
 		{ name = "health", type = "smallint", length = 3, default = 100, is_unsigned = true },
 		{ name = "armor", type = "smallint", length = 3, default = 0, is_unsigned = true },
+		{ name = "cash", type = "bigint", length = 18, default = 0, is_unsigned = true },
+		{ name = "bank", type = "bigint", length = 18, default = 0, is_unsigned = true },
 		{ name = "is_dead", type = "smallint", length = 1, default = 0, is_unsigned = true },
 		{ name = "cause_of_death", type = "text" },
 		{ name = "last_played", type = "timestamp", default = "0000-00-00 00:00:00" },

@@ -25,6 +25,7 @@
 local defaultSpawnX, defaultSpawnY, defaultSpawnZ = 1731.03, -1912.05, 13.56
 local defaultSpawnRotation = 90
 local defaultSpawnInterior, defaultSpawnDimension = 0, 0
+local defaultCash, defaultBank = 250, 3250
 
 function getCharacter( id )
 	return exports.database:query_single( "SELECT * FROM `characters` WHERE `id` = ?", id )
@@ -79,7 +80,7 @@ addEventHandler( "characters:create", root,
 				characterName = characterName:gsub( "%s", "_" )
 				
 				if ( not getCharacterByName( characterName ) ) then
-					local characterID = exports.database:insert_id( "INSERT INTO `characters` (`account`, `skin_id`, `name`, `pos_x`, `pos_y`, `pos_z`, `rotation`, `interior`, `dimension`, `date_of_birth`, `gender`, `skin_color`, `origin`, `look`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", exports.common:getAccountID( client ), characterSkinModel, characterName, defaultSpawnX, defaultSpawnY, defaultSpawnZ, defaultSpawnRotation, defaultSpawnInterior, defaultSpawnDimension, characterDateOfBirth, characterGender, characterSkinColor, characterOrigin, characterLook )
+					local characterID = exports.database:insert_id( "INSERT INTO `characters` (`account`, `skin_id`, `name`, `pos_x`, `pos_y`, `pos_z`, `rotation`, `interior`, `dimension`, `cash`, `bank`, `date_of_birth`, `gender`, `skin_color`, `origin`, `look`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", exports.common:getAccountID( client ), characterSkinModel, characterName, defaultSpawnX, defaultSpawnY, defaultSpawnZ, defaultSpawnRotation, defaultSpawnInterior, defaultSpawnDimension, defaultCash, defaultBank, characterDateOfBirth, characterGender, characterSkinColor, characterOrigin, characterLook )
 					
 					if ( characterID ) then
 						exports.database:execute( "INSERT INTO `languages` (`character_id`, `language_1`, `created`) VALUES (?, ?, NOW())", characterID, characterLanguage or 1 )
@@ -171,7 +172,7 @@ function saveCharacter( player )
 		local skinModel = getElementModel( player )
 		local characterID = exports.common:getCharacterID( player )
 		
-		return exports.database:execute( "UPDATE `characters` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rotation` = ?, `interior` = ?, `dimension` = ?, `skin_id` = ?, `health` = ?, `armor` = ?, `last_played` = NOW() WHERE `id` = ?", x, y, z, rotation, interior, dimension, skinModel, getElementHealth( player ), getPedArmor( player ), characterID )
+		return exports.database:execute( "UPDATE `characters` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rotation` = ?, `interior` = ?, `dimension` = ?, `skin_id` = ?, `health` = ?, `armor` = ?, `cash` = ?, `bank` = ?, `last_played` = NOW() WHERE `id` = ?", x, y, z, rotation, interior, dimension, skinModel, getElementHealth( player ), getPedArmor( player ), exports.bank:getPlayerMoney( player ), exports.bank:getPlayerBankMoney( player ), characterID )
 	end
 end
 
@@ -217,6 +218,8 @@ function characterSelection( player )
 	removeElementData( player, "character:look" )
 	removeElementData( player, "character:date_of_birth" )
 	removeElementData( player, "character:default_faction" )
+	removeElementData( player, "character:cash" )
+	removeElementData( player, "character:bank" )
 	
 	removeElementData( player, "character:weight" )
 	removeElementData( player, "character:max_weight" )
@@ -256,12 +259,15 @@ function spawnCharacter( player, character, fade )
 				
 				exports.security:modifyElementData( player, "character:id", character.id, true )
 				exports.security:modifyElementData( player, "character:name", character.name, true )
-				exports.security:modifyElementData( player, "character:gender", character.gender, true )
-				exports.security:modifyElementData( player, "character:skin_color", character.skin_color, true )
-				exports.security:modifyElementData( player, "character:origin", character.origin, true )
-				exports.security:modifyElementData( player, "character:look", character.look, true )
-				exports.security:modifyElementData( player, "character:date_of_birth", character.date_of_birth, true )
+				--temporarily took off these synced datas, who needs these anyway atm
+				--exports.security:modifyElementData( player, "character:gender", character.gender, true )
+				--exports.security:modifyElementData( player, "character:skin_color", character.skin_color, true )
+				--exports.security:modifyElementData( player, "character:origin", character.origin, true )
+				--exports.security:modifyElementData( player, "character:look", character.look, true )
+				--exports.security:modifyElementData( player, "character:date_of_birth", character.date_of_birth, true )
 				exports.security:modifyElementData( player, "character:default_faction", character.default_faction, true )
+				exports.security:modifyElementData( player, "character:cash", character.cash, false )
+				exports.security:modifyElementData( player, "character:bank", character.bank, false )
 				
 				local languages = exports.database:query_single( "SELECT * FROM `languages` WHERE `character_id` = ?", character.id )
 				
