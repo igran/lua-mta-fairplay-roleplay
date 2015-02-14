@@ -31,10 +31,8 @@ function enter( )
 	local interior = interiors[ currentInteriorMarker ]
 	
 	if ( currentInteriorMarker ) and ( interior ) then
-		if ( not exports.common:isPlayerServerAdmin( localPlayer ) ) then
-			if ( interior.is_deleted ) or ( interior.is_disabled ) then
-				return false
-			end
+		if ( ( interior.is_disabled ) or ( interior.is_deleted ) ) and ( not exports.common:isOnDuty( localPlayer ) ) then
+			return false
 		end
 		
 		if ( ( interior.owner_id ~= 0 ) or ( interior.type == 3 ) ) and ( interior.is_locked ) then
@@ -70,10 +68,8 @@ function toggleLock( )
 	local interior = interiors[ currentInteriorMarker ]
 	
 	if ( currentInteriorMarker ) and ( interior ) then
-		if ( not exports.common:isPlayerServerAdmin( localPlayer ) ) then
-			if ( interior.is_deleted ) or ( interior.is_disabled ) then
-				return false
-			end
+		if ( ( interior.is_disabled ) or ( interior.is_deleted ) ) and ( not exports.common:isOnDuty( localPlayer ) ) then
+			return false
 		end
 		
 		local interiorMarker = isCurrentInteriorMarkerEntrance and interior.entrance or interior.exit

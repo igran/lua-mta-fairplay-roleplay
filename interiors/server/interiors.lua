@@ -239,7 +239,15 @@ addEventHandler( "interiors:enter", root,
 			if ( getDistanceBetweenPoints3D( x, y, z, getElementPosition( client ) ) <= 1 ) and 
 			   ( getElementInterior( client ) == _interior ) and 
 			   ( getElementDimension( client ) == dimension ) then
-				enter( client, interiorID, isEntrance )
+				if ( ( interior.is_disabled ) or ( interior.is_deleted ) ) and ( not exports.common:isOnDuty( client ) ) then
+					return
+				end
+				
+				if ( not interior.is_locked ) then
+					enter( client, interiorID, isEntrance )
+				else
+					outputChatBox( "That door appears to be locked.", client, 230, 95, 95 )
+				end
 			end
 		end
 	end
