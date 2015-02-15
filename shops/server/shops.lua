@@ -101,7 +101,7 @@ function unload( id )
 	return false
 end
 
-function loadAllShops( )
+function loadAll( )
 	loadingShopsGlobalID = exports.messages:createGlobalMessage( "Loading shops. Please wait.", "shops-loading", true, false )
 	
 	for _, shop in pairs( shops ) do
@@ -122,7 +122,7 @@ function loadAllShops( )
 		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 	end
 end
-addEventHandler( "onResourceStart", resourceRoot, loadAllShops )
+addEventHandler( "onResourceStart", resourceRoot, loadAll )
 
 function resumeCoroutines( )
 	for _, loadCoroutine in ipairs( threads ) do
