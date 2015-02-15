@@ -1,7 +1,7 @@
 --[[
 	The MIT License (MIT)
 
-	Copyright (c) 2014 Socialz (+ soc-i-alz GitHub organization)
+	Copyright (c) 2015 Socialz (+ soc-i-alz GitHub organization)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -237,6 +237,7 @@ function getFormattedKeyType( keyValue, keyType )
 	if ( keyValue ) and ( database.utility.keys[ keyType ] ) then
 		return "\r\n" .. ( keyType ~= "index" and keyType:upper( ) .. " " or "" ) .. "KEY (`" .. keyValue .. "`),"
 	end
+	
 	return ""
 end
 
@@ -256,13 +257,16 @@ function isKeyword( string )
 			end
 		end
 	end
+	
 	return false
 end
 
 function verify_table( tableName )
 	local tableName = escape_string( tableName, "char_digit_special" )
+	
 	if ( tableName ) and ( database.verification[ tableName ] ) then
 		local query = query( "SELECT 1 FROM `" .. tableName .. "`" )
+		
 		if ( query ) then
 			return true, 0
 		else
@@ -278,9 +282,11 @@ function verify_table( tableName )
 			
 			if ( execute( query_string ) ) then
 				outputDebugString( "DATABASE: Created table '" .. tableName .. "'." )
+				
 				return true, 2
 			else
 				outputDebugString( "DATABASE: Unable to create table '" .. tableName .. "'.", 2 )
+				
 				return false, 2
 			end
 			
@@ -290,6 +296,10 @@ function verify_table( tableName )
 	return false, 1
 end
 
+function modify_table( tableName, contents )
+	database.verification[ tableName ] = contents
+end
+
 addEventHandler( "onResourcePreStart", root,
 	function( resource )
 		if ( database.configuration.automated_resources[ getResourceName( resource ) ] ) then
@@ -297,6 +307,7 @@ addEventHandler( "onResourcePreStart", root,
 			
 			for _,database in ipairs( database.configuration.automated_resources[ getResourceName( resource ) ] ) do
 				local _return, _code = verify_table( database )
+				
 				if ( _return ) and ( _code > 0 ) then
 					outputDebugString( "DATABASE: Verification check completed for \"" .. database .. "\": database created." )
 				else
