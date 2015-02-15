@@ -110,8 +110,8 @@ local function getWorldItemFromCursor( )
 		local x, y, z = nil
 		local maxDistance = 0.35
 		
-		for _, element in ipairs( getElementsByType( "object", getResourceRootElement( getResourceFromName( "items" ) ) ) ) do
-			if ( exports.common:getRealWorldItemID( hitElement ) ) and ( isElementStreamedIn( element ) ) and ( isElementOnScreen( element ) ) then
+		for _, element in ipairs( getElementsByType( "object", getResourceDynamicElementRoot( getResourceFromName( "items" ) ), true ) ) do
+			if ( exports.common:getRealWorldItemID( element ) ) and ( isElementOnScreen( element ) ) then
 				x, y, z = getElementPosition( element )
 				local distance = getDistanceBetweenPoints3D( x, y, z, hitX, hitY, hitZ )
 				
@@ -313,10 +313,6 @@ end
 
 addEventHandler( "onClientClick", root,
 	function( button, state, cursorX, cursorY, worldX, worldY, worldZ, clickedElement )
-		if ( not isInventoryShowing ) then
-			return
-		end
-		
 		if ( button == "left" ) then
 			if ( state == "down" ) then
 				if ( hoveringItem ) then
@@ -335,29 +331,39 @@ addEventHandler( "onClientClick", root,
 					killTimer( dragTimer )
 				end
 				
-				if ( draggingItem ) then
-					if ( getDistanceBetweenPoints3D( worldX, worldY, worldZ, getElementPosition( localPlayer ) ) <= maximumTriggerDistance ) then
-						triggerServerEvent( "items:drop", localPlayer, inventory[ draggingItem ], worldX, worldY, worldZ )
+				if ( isInventoryShowing ) then
+					if ( draggingItem ) then
+						if ( getDistanceBetweenPoints3D( worldX, worldY, worldZ, getElementPosition( localPlayer ) ) <= maximumTriggerDistance ) then
+							triggerServerEvent( "items:drop", localPlayer, inventory[ draggingItem ], worldX, worldY, worldZ )
+						end
+						
+						draggingItem = false
+						
+						return
+					elseif ( hoveringCategory ) then
+						activeCategory = hoveringCategory
+						
+						return
+					elseif ( hoveringItem ) then
+						local item = inventory[ hoveringItem ]
+						
+						if ( getKeyState( "delete" ) ) then
+							triggerServerEvent( "items:delete", localPlayer, item )
+						elseif ( getKeyState( "lctrl" ) ) or ( getKeyState( "rctrl" ) ) then
+							local x, y, z = getElementPosition( localPlayer )
+								  z = getGroundPosition( x, y, z + 2 )
+							triggerServerEvent( "items:drop", localPlayer, item, x, y, z )
+						elseif ( getKeyState( "lalt" ) ) or ( getKeyState( "ralt" ) ) then
+							triggerServerEvent( "items:show", localPlayer, item )
+						else
+							triggerServerEvent( "items:use", localPlayer, item )
+						end
+						
+						return
 					end
-					
-					draggingItem = false
-				elseif ( hoveringCategory ) then
-					activeCategory = hoveringCategory
-				elseif ( hoveringItem ) then
-					local item = inventory[ hoveringItem ]
-					
-					if ( getKeyState( "delete" ) ) then
-						triggerServerEvent( "items:delete", localPlayer, item )
-					elseif ( getKeyState( "lctrl" ) ) or ( getKeyState( "rctrl" ) ) then
-						local x, y, z = getElementPosition( localPlayer )
-							  z = getGroundPosition( x, y, z + 2 )
-						triggerServerEvent( "items:drop", localPlayer, item, x, y, z )
-					elseif ( getKeyState( "lalt" ) ) or ( getKeyState( "ralt" ) ) then
-						triggerServerEvent( "items:show", localPlayer, item )
-					else
-						triggerServerEvent( "items:use", localPlayer, item )
-					end
-				elseif ( hoveringWorldItem ) then
+				end
+				
+				if ( hoveringWorldItem ) then
 					triggerServerEvent( "items:pickup", localPlayer, hoveringWorldItem )
 				end
 			end
