@@ -94,7 +94,7 @@ function destroyTicket( id, closeCode )
 	if ( tickets[ id ] ) then
 		tickets[ id ] = nil
 		
-		exports.database:execute( "UPDATE `ticket_logs` SET `closed_time` = NOW(), `closed_state` = ? WHERE `id` = ?", closeCode or 99, id )
+		exports.database:execute( "UPDATE `ticket_logs` SET `closed_time` = CURRENT_TIMESTAMP, `closed_state` = ? WHERE `id` = ?", closeCode or 99, id )
 		
 		for _, player in ipairs( exports.common:getPriorityPlayers( ) ) do
 			triggerClientEvent( player, "admin:update_tickets", player, tickets )
@@ -114,7 +114,7 @@ function assignTicket( id, player )
 			triggerClientEvent( player, "admin:update_tickets", player, tickets )
 		end
 		
-		if ( exports.database:execute( "UPDATE `ticket_logs` SET `assigned_time` = NOW(), `assigned_to` = ? WHERE `id` = ?", exports.common:getAccountID( player ), id ) ) then
+		if ( exports.database:execute( "UPDATE `ticket_logs` SET `assigned_time` = CURRENT_TIMESTAMP, `assigned_to` = ? WHERE `id` = ?", exports.common:getAccountID( player ), id ) ) then
 			return loadTicket( id )
 		end
 	end

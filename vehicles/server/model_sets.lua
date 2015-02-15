@@ -29,7 +29,7 @@ function getModelSet( id )
 end
 
 function createModelSet( make, model, year, price, gtaModelID, createdBy )
-	local modelSetID = exports.database:insert_id( "INSERT INTO `vehicles_model_sets` (`make`, `model`, `year`, `price`, `gta_model_id`, `created_by`, `modified`, `created`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())", make, model, year, price, gtaModelID, createdBy )
+	local modelSetID = exports.database:insert_id( "INSERT INTO `vehicles_model_sets` (`make`, `model`, `year`, `price`, `gta_model_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)", make, model, year, price, gtaModelID, createdBy )
 	return modelSetID and cacheModelSet( modelSetID ) or false
 end
 

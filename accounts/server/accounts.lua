@@ -28,7 +28,7 @@ function get( id )
 end
 
 function create( username, password )
-	local id = exports.database:insert_id( "INSERT INTO `accounts` (`username`, `password`, `created`) VALUES (?, ?, NOW())", username, exports.security:hashString( password ) )
+	local id = exports.database:insert_id( "INSERT INTO `accounts` (`username`, `password`, `created`) VALUES (?, ?, CURRENT_TIMESTAMP)", username, exports.security:hashString( password ) )
 
 	if ( id ) then
 		local query = exports.database:query_single( "SELECT COUNT(*) AS `count` FROM `accounts`" )

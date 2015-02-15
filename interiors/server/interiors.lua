@@ -34,7 +34,7 @@ function get( id )
 end
 
 function create( startX, startY, startZ, startInterior, startDimension, targetX, targetY, targetZ, targetInterior, name, type, price, ownerID, createdBy )
-	local id = exports.database:insert_id( "INSERT INTO `interiors` (`pos_x`, `pos_y`, `pos_z`, `interior`, `dimension`, `target_pos_x`, `target_pos_y`, `target_pos_z`, `target_interior`, `name`, `type`, `price`, `owner_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", startX or 0, startY or 0, startZ or 0, startInterior or 0, startDimension or 0, targetX or 0, targetY or 0, targetZ or 0, targetInterior or 0, name or "", type or 1, price or 0, ownerID or 0, createdBy or 0 )
+	local id = exports.database:insert_id( "INSERT INTO `interiors` (`pos_x`, `pos_y`, `pos_z`, `interior`, `dimension`, `target_pos_x`, `target_pos_y`, `target_pos_z`, `target_interior`, `name`, `type`, `price`, `owner_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)", startX or 0, startY or 0, startZ or 0, startInterior or 0, startDimension or 0, targetX or 0, targetY or 0, targetZ or 0, targetInterior or 0, name or "", type or 1, price or 0, ownerID or 0, createdBy or 0 )
 
 	if ( id ) then
 		load( id, true )

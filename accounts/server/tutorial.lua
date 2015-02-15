@@ -30,7 +30,8 @@ addEventHandler( "accounts:onTutorialComplete", root,
 		end
 		
 		setCameraTarget( client, client )
+		showChat( client, true )
 		
-		exports.database:execute( "UPDATE `accounts` SET `tutorial` = '1', `tutorial_date` = NOW() WHERE `id` = ?", exports.common:getAccountID( client ) )
+		exports.database:execute( "UPDATE `accounts` SET `tutorial` = '1', `tutorial_date` = CURRENT_TIMESTAMP WHERE `id` = ?", exports.common:getAccountID( client ) )
 	end
 )

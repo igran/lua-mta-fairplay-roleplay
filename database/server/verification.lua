@@ -40,7 +40,7 @@ database.verification = {
 		{ name = "last_action", type = "timestamp", default = "0000-00-00 00:00:00" },
 		{ name = "last_ip", type = "varchar", length = 128, default = "0.0.0.0" },
 		{ name = "last_serial", type = "varchar", length = 32, default = "13371337133713371337133713371337" },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	characters = {
@@ -67,7 +67,7 @@ database.verification = {
 		{ name = "is_dead", type = "smallint", length = 1, default = 0, is_unsigned = true },
 		{ name = "cause_of_death", type = "text" },
 		{ name = "last_played", type = "timestamp", default = "0000-00-00 00:00:00" },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	factions = {
@@ -76,7 +76,7 @@ database.verification = {
 		{ name = "type", type = "smallint", length = 3, default = 1, is_unsigned = true },
 		{ name = "motd", type = "text" },
 		{ name = "ranks", type = "text" },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	factions_characters = {
@@ -85,7 +85,7 @@ database.verification = {
 		{ name = "faction_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "rank", type = "tinyint", length = 3, default = 0, is_unsigned = true },
 		{ name = "is_leader", type = "tinyint", length = 1, default = 0, is_unsigned = true },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	interiors = {
@@ -115,7 +115,7 @@ database.verification = {
 		{ name = "owner_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "item_id", type = "smallint", length = 3, default = 0, is_unsigned = true },
 		{ name = "item_value", type = "varchar", length = 1000, default = "" },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	languages = {
@@ -127,7 +127,7 @@ database.verification = {
 		{ name = "skill_1", type = "smallint", length = 3, default = 100, is_unsigned = true },
 		{ name = "skill_2", type = "smallint", length = 3, default = 0, is_unsigned = true },
 		{ name = "skill_3", type = "smallint", length = 3, default = 0, is_unsigned = true },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	shops = {
@@ -160,7 +160,7 @@ database.verification = {
 		{ name = "assigned_to", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "closed_time", type = "timestamp", default = "0000-00-00 00:00:00" },
 		{ name = "closed_state", type = "tinyint", length = 3, default = 0, is_unsigned = true },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	vehicles = {
@@ -199,7 +199,7 @@ database.verification = {
 		{ name = "is_bulletproof", type = "tinyint", length = 1, default = 0, is_unsigned = true },
 		{ name = "model_set_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "created_by", type = "int", length = 10, default = 0, is_unsigned = true },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	vehicles_model_sets = {
@@ -210,7 +210,7 @@ database.verification = {
 		{ name = "price", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "gta_model_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "created_by", type = "int", length = 10, default = 0, is_unsigned = true },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
 	worlditems = {
@@ -227,7 +227,7 @@ database.verification = {
 		{ name = "dimension", type = "smallint", length = 5, default = 0, is_unsigned = true },
 		{ name = "user_id", type = "int", length = 10, default = 0, is_unsigned = true },
 		{ name = "protection", type = "int", length = 10, default = 0 },
-		{ name = "modified", type = "timestamp", default = "NOW()" },
+		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	}
 }

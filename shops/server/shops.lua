@@ -35,7 +35,7 @@ function get( id )
 end
 
 function create( x, y, z, interior, dimension, rotation, name, type, modelID, createdBy )
-	local id = exports.database:insert_id( "INSERT INTO `shops` (`pos_x`, `pos_y`, `pos_z`, `interior`, `dimension`, `rotation`, `name`, `type`, `model_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", x or 0, y or 0, z or 0, interior or 0, dimension or 0, rotation or 0, name or "", type or 1, modelID or 0, createdBy or 0 )
+	local id = exports.database:insert_id( "INSERT INTO `shops` (`pos_x`, `pos_y`, `pos_z`, `interior`, `dimension`, `rotation`, `name`, `type`, `model_id`, `created_by`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)", x or 0, y or 0, z or 0, interior or 0, dimension or 0, rotation or 0, name or "", type or 1, modelID or 0, createdBy or 0 )
 
 	if ( id ) then
 		return id, load( id, true )
