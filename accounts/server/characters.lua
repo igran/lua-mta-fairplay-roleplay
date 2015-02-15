@@ -80,10 +80,10 @@ addEventHandler( "characters:create", root,
 				characterName = characterName:gsub( "%s", "_" )
 				
 				if ( not getCharacterByName( characterName ) ) then
-					local characterID = exports.database:insert_id( "INSERT INTO `characters` (`account`, `skin_id`, `name`, `pos_x`, `pos_y`, `pos_z`, `rotation`, `interior`, `dimension`, `cash`, `bank`, `date_of_birth`, `gender`, `skin_color`, `origin`, `look`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", exports.common:getAccountID( client ), characterSkinModel, characterName, defaultSpawnX, defaultSpawnY, defaultSpawnZ, defaultSpawnRotation, defaultSpawnInterior, defaultSpawnDimension, defaultCash, defaultBank, characterDateOfBirth, characterGender, characterSkinColor, characterOrigin, characterLook )
+					local characterID = exports.database:insert_id( "INSERT INTO `characters` (`account`, `skin_id`, `name`, `pos_x`, `pos_y`, `pos_z`, `rotation`, `interior`, `dimension`, `cash`, `bank`, `date_of_birth`, `gender`, `skin_color`, `origin`, `look`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)", exports.common:getAccountID( client ), characterSkinModel, characterName, defaultSpawnX, defaultSpawnY, defaultSpawnZ, defaultSpawnRotation, defaultSpawnInterior, defaultSpawnDimension, defaultCash, defaultBank, characterDateOfBirth, characterGender, characterSkinColor, characterOrigin, characterLook )
 					
 					if ( characterID ) then
-						exports.database:execute( "INSERT INTO `languages` (`character_id`, `language_1`, `created`) VALUES (?, ?, NOW())", characterID, characterLanguage or 1 )
+						exports.database:execute( "INSERT INTO `languages` (`character_id`, `language_1`, `created`) VALUES (?, ?, CURRENT_TIMESTAMP)", characterID, characterLanguage or 1 )
 						
 						exports.messages:destroyMessage( client, "selection" )
 						
@@ -172,7 +172,7 @@ function saveCharacter( player )
 		local skinModel = getElementModel( player )
 		local characterID = exports.common:getCharacterID( player )
 		
-		return exports.database:execute( "UPDATE `characters` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rotation` = ?, `interior` = ?, `dimension` = ?, `skin_id` = ?, `health` = ?, `armor` = ?, `cash` = ?, `bank` = ?, `last_played` = NOW() WHERE `id` = ?", x, y, z, rotation, interior, dimension, skinModel, getElementHealth( player ), getPedArmor( player ), exports.bank:getPlayerMoney( player ), exports.bank:getPlayerBankMoney( player ), characterID )
+		return exports.database:execute( "UPDATE `characters` SET `pos_x` = ?, `pos_y` = ?, `pos_z` = ?, `rotation` = ?, `interior` = ?, `dimension` = ?, `skin_id` = ?, `health` = ?, `armor` = ?, `cash` = ?, `bank` = ?, `last_played` = CURRENT_TIMESTAMP WHERE `id` = ?", x, y, z, rotation, interior, dimension, skinModel, getElementHealth( player ), getPedArmor( player ), exports.bank:getPlayerMoney( player ), exports.bank:getPlayerBankMoney( player ), characterID )
 	end
 end
 
@@ -320,8 +320,12 @@ function spawnCharacter( player, character, fade )
 				
 				outputChatBox( "Welcome" .. ( not pendingTutorial and " back" or "" ) .. ", " .. character.name:gsub( "_", " " ) .. "!", player, 230, 180, 95 )
 				
-				if ( not pendingTutorial ) and ( character.last_played ) then
-					outputChatBox( "You were last seen on this character on " .. exports.common:formatDate( character.last_played, true ) .. ".", player, 230, 180, 95 )
+				if ( pendingTutorial ) then
+					showChat( player, false )
+				else
+					if ( not character.last_played:find( "0000" ) ) then
+						outputChatBox( "You were last seen on this character on " .. exports.common:formatDate( character.last_played, true ) .. ".", player, 230, 180, 95 )
+					end
 				end
 				
 				exports.admin:updateTickets( player )
