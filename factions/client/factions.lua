@@ -1,7 +1,7 @@
 --[[
 	The MIT License (MIT)
 
-	Copyright (c) 2014 Socialz (+ soc-i-alz GitHub organization)
+	Copyright (c) 2015 Socialz (+ soc-i-alz GitHub organization)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,72 @@ end
 function showFactionMenu( forceClose )
 	--todo
 end
+--[[
+--massive
+GUIEditor = {
+    tab = {},
+    label = {},
+    tabpanel = {},
+    edit = {},
+    gridlist = {},
+    window = {},
+    button = {},
+    memo = {}
+}
+addEventHandler("onClientResourceStart", resourceRoot,
+    function()
+        GUIEditor.window[1] = guiCreateWindow(455, 310, 966, 542, "Faction name", false)
+        guiWindowSetSizable(GUIEditor.window[1], false)
+
+        GUIEditor.tabpanel[1] = guiCreateTabPanel(10, 29, 946, 461, false, GUIEditor.window[1])
+
+        GUIEditor.tab[1] = guiCreateTab("Members", GUIEditor.tabpanel[1])
+
+        GUIEditor.gridlist[1] = guiCreateGridList(10, 10, 788, 415, false, GUIEditor.tab[1])
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Name", 0.1)
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Rank", 0.1)
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Wage", 0.1)
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Leader", 0.1)
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Status", 0.1)
+        guiGridListAddColumn(GUIEditor.gridlist[1], "Duty", 0.1)
+        GUIEditor.button[1] = guiCreateButton(808, 10, 128, 28, "Kick member", false, GUIEditor.tab[1])
+        GUIEditor.button[2] = guiCreateButton(808, 48, 128, 28, "Set rank", false, GUIEditor.tab[1])
+        GUIEditor.button[3] = guiCreateButton(808, 86, 128, 28, "Toggle leader", false, GUIEditor.tab[1])
+
+        GUIEditor.tab[2] = guiCreateTab("Notes", GUIEditor.tabpanel[1])
+
+        GUIEditor.tabpanel[2] = guiCreateTabPanel(10, 10, 926, 417, false, GUIEditor.tab[2])
+
+        GUIEditor.tab[3] = guiCreateTab("Faction note", GUIEditor.tabpanel[2])
+
+        GUIEditor.memo[1] = guiCreateMemo(10, 10, 906, 333, "", false, GUIEditor.tab[3])
+
+        GUIEditor.button[4] = guiCreateButton(677, 348, 167, 20, "", false, GUIEditor.memo[1])
+
+        GUIEditor.button[5] = guiCreateButton(10, 353, 906, 30, "Save note", false, GUIEditor.tab[3])
+
+        GUIEditor.tab[4] = guiCreateTab("Leader note", GUIEditor.tabpanel[2])
+
+
+        GUIEditor.tab[5] = guiCreateTab("Vehicles", GUIEditor.tabpanel[1])
+        GUIEditor.tab[6] = guiCreateTab("Ranks", GUIEditor.tabpanel[1])
+
+        GUIEditor.edit[1] = guiCreateEdit(10, 37, 212, 27, "", false, GUIEditor.tab[6])
+        GUIEditor.edit[2] = guiCreateEdit(232, 37, 78, 27, "", false, GUIEditor.tab[6])
+        GUIEditor.label[1] = guiCreateLabel(10, 12, 212, 15, "Rank name", false, GUIEditor.tab[6])
+        GUIEditor.label[2] = guiCreateLabel(232, 12, 78, 15, "Rank wage", false, GUIEditor.tab[6])
+        GUIEditor.label[3] = guiCreateLabel(399, 12, 212, 15, "Rank name", false, GUIEditor.tab[6])
+        GUIEditor.edit[3] = guiCreateEdit(399, 37, 212, 27, "", false, GUIEditor.tab[6])
+        GUIEditor.label[4] = guiCreateLabel(621, 12, 78, 15, "Rank wage", false, GUIEditor.tab[6])
+        GUIEditor.edit[4] = guiCreateEdit(621, 37, 78, 27, "", false, GUIEditor.tab[6])
+
+
+        GUIEditor.label[5] = guiCreateLabel(10, 500, 760, 15, "MOTD: Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis.", false, GUIEditor.window[1])
+        guiSetFont(GUIEditor.label[5], "default-bold-small")
+        GUIEditor.button[6] = guiCreateButton(827, 503, 129, 29, "Close window", false, GUIEditor.window[1])    
+    end
+)
+]]
 
 function showFactionSelector( forceClose )
 	if ( isElement( factionSelector.window ) ) then
