@@ -31,7 +31,7 @@ addEventHandler( "items:drop", root,
 			return
 		end
 		
-		local hasItem, _, item = hasItem( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
+		local hasItem, _, item = has( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
 		
 		if ( clientItem ) and ( hasItem ) then
 			local rx, ry, rz = 0, 0, getPedRotation( client )
@@ -69,7 +69,7 @@ addEventHandler( "items:drop", root,
 							--triggerClientEvent( client, ":_exitPhoneWindows_:", client, item.itemValue )
 						end
 						
-						if ( not takeItem( client, item.id ) ) then
+						if ( not take( client, item.id ) ) then
 							outputChatBox( "Something is wrong (0xFE0000).", client, 230, 95, 95 )
 							table.remove( worldItems, id )
 							destroyElement( object )
@@ -83,8 +83,8 @@ addEventHandler( "items:drop", root,
 				end
 			else
 				exports.chat:outputLocalActionMe( client, "gave " .. exports.common:getPlayerName( element ) .. " a " .. getItemName( item.itemID ) .. "." )
-				takeItem( client, item.id )
-				giveItem( element, item.itemID, value )
+				take( client, item.id )
+				give( element, item.itemID, value )
 			end
 		else
 			outputChatBox( "You do not have such item.", client, 230, 95, 95 )
@@ -116,7 +116,7 @@ addEventHandler( "items:pickup", root,
 			destroyElement( object )
 		end
 		
-		giveItem( client, item.itemID, item.itemValue )
+		give( client, item.itemID, item.itemValue )
 		
 		table.remove( worldItems, id )
 	end
