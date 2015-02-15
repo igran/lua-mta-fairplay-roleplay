@@ -94,7 +94,7 @@ function formatDate( string, preparedString )
 		  day = day:sub( 1, 1 ) == "0" and day:sub( 2 ) or day
 
 	local months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }
-	local month = months[ tonumber( date[ 2 ] ) ]
+	local month = tostring( months[ tonumber( date[ 2 ] ) ] )
 	
 	return preparedString and day .. " of " .. month .. " " .. date[ 1 ] .. " " .. dateAndTime[ 2 ] or { day = day, month = month, year = date[ 1 ], hour = time[ 1 ], minute = time[ 2 ], second = time[ 3 ] }
 end
