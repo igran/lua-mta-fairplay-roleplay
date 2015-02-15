@@ -60,11 +60,11 @@
 	<export function="getAmmoWeight" type="shared" />
 	
 	<export function="getItems" type="shared" />
+	<export function="has" type="shared" />
 	
 	<export function="load" />
 	<export function="give" />
 	<export function="take" />
-	<export function="has" />
 	
 	<export function="loadWeapons" />
 </meta>

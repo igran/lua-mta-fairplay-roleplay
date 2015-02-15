@@ -85,7 +85,7 @@ function take( element, id )
 	local ownerID = getID( element )
 
 	if ( ownerID ) then
-		local item, index = hasItem( element, false, false, id )
+		local item, index = has( element, false, false, id )
 
 		if ( item ) then
 			if ( exports.database:execute( "DELETE FROM `inventory` WHERE `id` = ? AND `owner_id` = ?", id, ownerID ) ) then

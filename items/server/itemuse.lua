@@ -29,7 +29,7 @@ addEventHandler( "items:use", root,
 			return
 		end
 		
-		local hasItem, _, item = hasItem( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
+		local hasItem, _, item = has( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
 		
 		if ( clientItem ) and ( hasItem ) then
 			local itemName = getItemName( item.itemID )
@@ -84,7 +84,7 @@ addEventHandler( "items:show", root,
 			return
 		end
 		
-		local hasItem, _, item = hasItem( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
+		local hasItem, _, item = has( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
 		
 		if ( clientItem ) and ( hasItem ) then
 			exports.chat:outputLocalActionMe( client, "shows their " .. ( item.itemID == 11 and getWeaponName( itemValue ) or getItemName( item.itemID ) ) .. " to everyone." )
@@ -101,7 +101,7 @@ addEventHandler( "items:delete", root,
 			return
 		end
 		
-		local hasItem, _, item = hasItem( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
+		local hasItem, _, item = has( client, clientItem.itemID, clientItem.itemValue, clientItem.id )
 		
 		if ( clientItem ) and ( hasItem ) then
 			exports.chat:outputLocalActionMe( client, "destroyed a " .. getItemName( item.itemID ) .. "." )

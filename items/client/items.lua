@@ -28,7 +28,7 @@ function getItems( element )
 	return items[ element ] or { }
 end
 
-function hasItem( element, itemID, itemValue )
+function has( element, itemID, itemValue )
 	for index, values in ipairs( getItems( element ) ) do
 		if ( values.itemID == itemID ) and ( ( not itemValue ) or ( values.itemValue == itemValue ) ) then
 			return true, index, values
