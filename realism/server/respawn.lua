@@ -107,7 +107,7 @@ addEventHandler( "onResourceStart", resourceRoot,
 
 addEventHandler( "onResourceStop", root,
 	function( resource )
-		if ( getResourceName( resource ) == "admin" ) then
+		if ( resource ) and ( getResourceName( resource ) == "admin" ) then
 			for _, player in ipairs( getElementsByType( "player" ) ) do
 				if ( getElementData( player, "player:waiting" ) ) then
 					outputChatBox( "Because of technical reasons your ticket was closed. You can report again now. Your old message was outputted to the F8 console.", player, 230, 95, 95 )
