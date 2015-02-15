@@ -66,5 +66,7 @@
 	<export function="give" />
 	<export function="take" />
 	
+	<export function="getWorldItem" />
+	
 	<export function="loadWeapons" />
 </meta>

@@ -24,6 +24,10 @@
 
 local worldItems = { }
 
+function getWorldItem( id )
+	return worldItems[ id ] or false
+end
+
 addEvent( "items:drop", true )
 addEventHandler( "items:drop", root,
 	function( clientItem, x, y, z, element )
