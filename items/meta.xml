@@ -59,7 +59,8 @@
 	<export function="getWeaponWeight" type="shared" />
 	<export function="getAmmoWeight" type="shared" />
 	
-	<export function="getItems" />
+	<export function="getItems" type="shared" />
+	
 	<export function="load" />
 	<export function="give" />
 	<export function="take" />
