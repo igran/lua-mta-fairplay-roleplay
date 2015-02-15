@@ -51,8 +51,8 @@ function showLoginMenu( forceEnd )
 	if ( isElement( accounts_login_view.window ) ) then
 		destroyElement( accounts_login_view.window )
 		
-		showCursor( false )
-		guiSetInputEnabled( false )
+		--showCursor( false )
+		--guiSetInputEnabled( false )
 	end
 	
 	if ( forceEnd ) then
