@@ -335,7 +335,7 @@ function showCharacterSelection( forceEnd )
 		guiComboBoxSetSelected( character_selection.combobox.gender, genderSelected - 1 )
 		guiComboBoxSetSelected( character_selection.combobox.skin_color, skinColorSelected - 1 )
 		
-		local skins = exports.common:getValidPedModelsByGenderAndColor( genderList[ genderSelected ]:lower( ), skinColorList[ skinColorSelected ]:lower( ) )
+		local skins = exports.common:getValidPedModelsByGenderAndColor( genderList[ genderSelected ]:lower( ), skinColorList[ skinColorSelected ]:lower( ), "creation" )
 		
 		selectedSkin = skins[ math.random( #skins ) ]
 		selectedLanguage = math.random( 1, 35 )
