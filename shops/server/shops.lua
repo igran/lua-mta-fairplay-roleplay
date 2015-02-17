@@ -25,7 +25,8 @@
 local shops = { }
 local threads = { }
 
-local loadingShopsGlobalID, loadingTimer
+--local loadingShopsGlobalID
+local loadingTimer
 local shopsToLoadCount = 0
 local maximumClickDistance = 12.5
 
@@ -102,7 +103,7 @@ function unload( id )
 end
 
 function loadAll( )
-	loadingShopsGlobalID = exports.messages:createGlobalMessage( "Loading shops. Please wait.", "shops-loading", true, false )
+	--loadingShopsGlobalID = exports.messages:createGlobalMessage( "Loading shops. Please wait.", "shops-loading", true, false )
 	
 	for _, shop in pairs( shops ) do
 		unload( shop.id )
@@ -130,7 +131,7 @@ function resumeCoroutines( )
 	end
 	
 	if ( exports.common:count( shops ) >= shopsToLoadCount ) then
-		exports.messages:destroyGlobalMessage( loadingShopsGlobalID )
+		--exports.messages:destroyGlobalMessage( loadingShopsGlobalID )
 		shopsToLoadCount = nil
 		
 		if ( isTimer( loadingTimer ) ) then

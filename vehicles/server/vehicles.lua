@@ -25,7 +25,8 @@
 local vehicles = { }
 local threads = { }
 
-local loadingVehiclesGlobalID, loadingTimer
+--local loadingVehiclesGlobalID
+local loadingTimer
 local vehiclesToLoadCount = 0
 
 _get = get
@@ -211,7 +212,7 @@ function saveAll( )
 end
 
 function loadAll( )
-	loadingVehiclesGlobalID = exports.messages:createGlobalMessage( "Loading vehicles. Please wait.", "vehicles-loading", true, false )
+	--loadingVehiclesGlobalID = exports.messages:createGlobalMessage( "Loading vehicles. Please wait.", "vehicles-loading", true, false )
 	
 	for _, vehicle in ipairs( getElementsByType( "vehicle" ) ) do
 		if ( exports.common:getRealVehicleID( vehicle ) ) then
@@ -240,7 +241,7 @@ function resumeCoroutines( )
 	end
 	
 	if ( vehiclesToLoadCount ) and ( exports.common:count( vehicles ) >= vehiclesToLoadCount ) then
-		exports.messages:destroyGlobalMessage( loadingVehiclesGlobalID )
+		--exports.messages:destroyGlobalMessage( loadingVehiclesGlobalID )
 		vehiclesToLoadCount = nil
 		
 		if ( isTimer( loadingTimer ) ) then

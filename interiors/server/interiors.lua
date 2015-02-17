@@ -25,7 +25,8 @@
 local interiors = { }
 local threads = { }
 
-local loadingInteriorsGlobalID, loadingTimer
+--local loadingInteriorsGlobalID
+local loadingTimer
 local interiorsToLoadCount = 0
 
 _get = get
@@ -140,7 +141,7 @@ function save( id )
 end
 
 function loadAll( )
-	loadingInteriorsGlobalID = exports.messages:createGlobalMessage( "Loading interiors. Please wait.", "interiors-loading", true, false )
+	--loadingInteriorsGlobalID = exports.messages:createGlobalMessage( "Loading interiors. Please wait.", "interiors-loading", true, false )
 	
 	for _, interior in pairs( interiors ) do
 		unload( interior.id )
@@ -168,7 +169,7 @@ function resumeCoroutines( )
 	end
 	
 	if ( interiorsToLoadCount ) and ( exports.common:count( interiors ) >= interiorsToLoadCount ) then
-		exports.messages:destroyGlobalMessage( loadingInteriorsGlobalID )
+		--exports.messages:destroyGlobalMessage( loadingInteriorsGlobalID )
 		interiorsToLoadCount = nil
 		
 		if ( isTimer( loadingTimer ) ) then
