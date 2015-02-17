@@ -28,6 +28,6 @@
 	
 	<script src="server/security.lua" />
 	
-	<export function="modifyElementData" />
 	<export function="hashString" />
+	<export function="modifyElementData" />
 </meta>
