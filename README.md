@@ -30,6 +30,14 @@ This is a Multi Theft Auto Roleplay gamemode, designed specifically for FairPlay
 
 `<resource src="initializer" startup="1" protected="0" />`
 
+### Important note
+
+In order for the script to initialize correctly, you need to run the server once and let it show all errors until errors stop outputting to the server console. After this, restart the server and there should be no errors whatsoever.
+
+This is the process at the moment, because the script automatically creates the database tables and initializes the core code accordingly to your server configuration. It will also generate a secret key to your server files, which will keep your user passwords secured after they log in.
+
+There will be a small change to this process later on, when I have more time to spend on it. In the future there will be no need for a restart, because the script will not initialize before the database tables have been created and MySQL connection is working properly.
+
 ### Git programs
 
 There are several Git programs that give you the ability to clone a remote repository to your local machine. You should see the up -and downsides of each program individually and see which one is the best fit for you and your use.
