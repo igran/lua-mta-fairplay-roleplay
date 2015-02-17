@@ -23,11 +23,14 @@
 ]]
 
 local imports = {
+	--[[
 	table_name = {
 		{ name = "id", type = "int", length = 10, is_unsigned = true, is_auto_increment = true, key_type = "primary" },
+		{ name = "name", type = "varchar", length = 255, default = "My default value" },
 		{ name = "modified", type = "timestamp", default = "0000-00-00 00:00:00" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	}
+	]]
 }
 
 addEventHandler( "onResourceStart", resourceRoot,
