@@ -32,22 +32,40 @@ function isWatching( player )
 end
 
 function stopWatching( player, ignoreSync )
-	monitorWatchers[ player ] = nil
-	setElementFrozen( player, false )
-	setCameraTarget( player, player )
-	toggleAllControls( player, true, true, false )
+	if ( client ) and ( client ~= source ) then
+		return
+	end
 	
-	if ( not ignoreSync ) then
-		triggerClientEvent( player, "cctv:monitor", player, true )
+	local player = player or source
+	
+	if ( player ) then
+		monitorWatchers[ player ] = nil
+		setElementFrozen( player, false )
+		setCameraTarget( player, player )
+		toggleAllControls( player, true, true, false )
+		
+		if ( not ignoreSync ) then
+			triggerClientEvent( player, "cctv:monitor", player, true )
+		end
 	end
 end
+addEvent( "cctv:watch:stop", true )
+addEventHandler( "cctv:watch:stop", root, stopWatching )
 
-function startWatching( player, spotID )
+function startWatching( player, spotID, cameraID )
+	if ( client ) and ( client ~= source ) then
+		return
+	end
+	
+	local player = source or player
+	
 	monitorWatchers[ player ] = spotID or -1
 	setElementFrozen( player, true )
 	toggleAllControls( player, false, true, false )
-	triggerClientEvent( player, "cctv:monitor", player )
+	triggerClientEvent( player, "cctv:monitor", player, cameraID )
 end
+addEvent( "cctv:watch", true )
+addEventHandler( "cctv:watch", root, startWatching )
 
 function getPlayersWatching( spotID )
 	local players = { }

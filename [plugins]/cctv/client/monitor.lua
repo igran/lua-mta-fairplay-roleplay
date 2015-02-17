@@ -24,9 +24,11 @@
 
 local screenWidth, screenHeight = guiGetScreenSize( )
 
-local x, y = screenWidth * 0.15, screenHeight * 0.1
+isMonitoring = false
+
+local x, y = screenWidth * 0.1, screenHeight * 0.1
 local scale = 100
-local monitorTick, showRec, isMonitoring
+local monitorTick, showRec
 local cameraEffect = 1
 local scanlinesY = 0
 local cameraEffects = { "normal", "nightvision", "thermalvision" }
@@ -42,7 +44,11 @@ local tiltSensitivity, panSensitivity = 0.00085, 0.5
 local tiltMultiplier, panMultiplier = 0, 0
 local digitalFont, currentCameraIndex
 
-local function goToCamera( index )
+function goToCamera( index )
+	if ( not index ) then
+		return goToRandomCamera( )
+	end
+	
 	local cctv = indexedCCTVs[ index ]
 	
 	if ( cctv ) then
@@ -62,7 +68,7 @@ local function goToCamera( index )
 	return false
 end
 
-local function goToRandomCamera( )
+function goToRandomCamera( )
 	return goToCamera( math.random( #indexedCCTVs ) )
 end
 
@@ -155,21 +161,26 @@ end
 
 addEvent( "cctv:monitor", true )
 addEventHandler( "cctv:monitor", root,
-	function( stopWatching )
-		if ( stopWatching ) then
+	function( argument )
+		if ( argument == true ) then
 			setCameraGoggleEffect( "normal" )
 			
 			if ( isMonitoring ) then
 				removeEventHandler( "onClientHUDRender", root, monitorHUD )
 				isMonitoring = false
 			end
+			
+			showCCTVLocations( true, true )
 		else
-			if ( goToRandomCamera( ) ) then
+			if ( goToCamera( argument ) ) then
 				if ( not isMonitoring ) then
 					addEventHandler( "onClientHUDRender", root, monitorHUD )
 					isMonitoring = true
 					monitorTick = getTickCount( )
 				end
+				
+				showCCTVManager( true, true )
+				showCCTVLocations( )
 			end
 		end
 	end
