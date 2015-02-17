@@ -278,7 +278,7 @@ function spawnCharacter( player, character, fade )
 					end
 				end
 				
-				exports.database:query( "UPDATE `characters` SET `last_played` = NOW( ) WHERE `id` = ?", character.id )
+				exports.database:query( "UPDATE `characters` SET `last_played` = CURRENT_TIMESTAMP WHERE `id` = ?", character.id )
 				
 				triggerClientEvent( player, "accounts:hideView", player )
 				triggerClientEvent( player, "scoreboard:showHUD", player )

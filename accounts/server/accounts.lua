@@ -60,7 +60,7 @@ function login( player, username, password )
 	
 	if ( account ) then
 		if ( account.last_ip ~= getPlayerIP( player ) ) or ( account.last_serial ~= getPlayerSerial( player ) ) then
-			exports.database:execute( "UPDATE `accounts` SET `last_login` = NOW( ), `last_ip` = ?, `last_serial` = ? WHERE `id` = ?", getPlayerIP( player ), getPlayerSerial( player ), account.id )
+			exports.database:execute( "UPDATE `accounts` SET `last_login` = CURRENT_TIMESTAMP, `last_ip` = ?, `last_serial` = ? WHERE `id` = ?", getPlayerIP( player ), getPlayerSerial( player ), account.id )
 		end
 		
 		exports.security:modifyElementData( player, "database:id", account.id, true )
@@ -81,7 +81,7 @@ end
 function logout( player )
 	characterSelection( player )
 	
-	exports.database:execute( "UPDATE `accounts` SET `last_action` = NOW( ) WHERE `id` = ?", exports.common:getAccountID( player ) )
+	exports.database:execute( "UPDATE `accounts` SET `last_action` = CURRENT_TIMESTAMP WHERE `id` = ?", exports.common:getAccountID( player ) )
 	
 	setPlayerName( player, getElementData( player, "player:name" ) )
 	
