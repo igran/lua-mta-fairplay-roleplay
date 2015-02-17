@@ -37,7 +37,7 @@ local function createServerKey( forceCreate )
 		if ( serverKeyFile ) then
 			math.randomseed( getTickCount( ) .. math.random( 123, 789 ) .. tostring( serverKeyFile ) )
 			
-			local networkData = getNetworkUsageData( )[ "out" ]
+			local networkData = getNetworkUsageData( ).out
 				  networkData = #networkData > 0 and networkData[ math.random( #networkData ) ] or hash( "md5", getTickCount( ) )
 			
 			local keyString = exports.common:getRandomString( keyCharsLength )
@@ -68,11 +68,11 @@ local function getHashedDataKey( string )
 end
 
 local function isDataSynchronized( element, key )
-	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":synchronized" )
+	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":synchronized:" .. getServerKey( true ) )
 end
 
 local function isDataProtected( element, key )
-	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":protected" )
+	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":protected:" .. getServerKey( true ) )
 end
 
 function modifyElementData( element, key, value, synchronized )
@@ -84,16 +84,16 @@ function modifyElementData( element, key, value, synchronized )
 			clearElementData = true
 		end
 		
-		cleanedFunctions.setElementData( element, hashedKey .. ":protected", false, false )
+		cleanedFunctions.setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), false, false )
 		
 		if ( clearElementData ) then
 			cleanedFunctions.removeElementData( element, key )
-			cleanedFunctions.removeElementData( element, hashedKey .. ":protected" )
-			cleanedFunctions.removeElementData( element, hashedKey .. ":synchronized" )
+			cleanedFunctions.removeElementData( element, hashedKey .. ":protected:" .. getServerKey( true ) )
+			cleanedFunctions.removeElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ) )
 		else
 			cleanedFunctions.setElementData( element, key, value, synchronized )
-			cleanedFunctions.setElementData( element, hashedKey .. ":synchronized", synchronized, false )
-			cleanedFunctions.setElementData( element, hashedKey .. ":protected", true, false )
+			cleanedFunctions.setElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ), synchronized, false )
+			cleanedFunctions.setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), true, false )
 		end
 		
 		return true
