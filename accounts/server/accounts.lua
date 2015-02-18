@@ -28,26 +28,30 @@ function get( id )
 end
 
 function create( username, password )
-	local id = exports.database:insert_id( "INSERT INTO `accounts` (`username`, `password`, `created`) VALUES (?, ?, CURRENT_TIMESTAMP)", username, exports.security:hashString( password ) )
+	local password, salt = exports.security:hashString( password, true )
 
-	if ( id ) then
-		local query = exports.database:query_single( "SELECT COUNT(*) AS `count` FROM `accounts`" )
+	if ( password ) and ( salt ) then
+		local id = exports.database:insert_id( "INSERT INTO `accounts` (`username`, `password`, `salt`, `created`) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", username, password, salt )
 
-		if ( query ) and ( query.count == 1 ) then
-			local playerLevel = 0
+		if ( id ) then
+			local query = exports.database:query_single( "SELECT COUNT(*) AS `count` FROM `accounts`" )
 
-			for level in pairs( exports.common:getLevels( ) ) do
-				if ( exports.common:getLevelPriority( level ) > exports.common:getLevelPriority( playerLevel ) ) then
-					playerLevel = level
+			if ( query ) and ( query.count == 1 ) then
+				local playerLevel = 0
+
+				for level in pairs( exports.common:getLevels( ) ) do
+					if ( exports.common:getLevelPriority( level ) > exports.common:getLevelPriority( playerLevel ) ) then
+						playerLevel = level
+					end
 				end
+
+				exports.database:execute( "UPDATE `accounts` SET `level` = ? WHERE `id` = ?", playerLevel, id )
 			end
 
-			exports.database:execute( "UPDATE `accounts` SET `level` = ? WHERE `id` = ?", playerLevel, id )
+			return id
 		end
-
-		return id
 	end
-
+	
 	return false
 end
 
@@ -56,25 +60,27 @@ function login( player, username, password )
 		return false
 	end
 	
-	local account = exports.database:query_single( "SELECT * FROM `accounts` WHERE `username` = ? AND `password` = ?", username, exports.security:hashString( password ) )
+	local account = exports.database:query_single( "SELECT * FROM `accounts` WHERE `username` = ? LIMIT 1", username )
 	
 	if ( account ) then
-		if ( account.last_ip ~= getPlayerIP( player ) ) or ( account.last_serial ~= getPlayerSerial( player ) ) then
-			exports.database:execute( "UPDATE `accounts` SET `last_login` = CURRENT_TIMESTAMP, `last_ip` = ?, `last_serial` = ? WHERE `id` = ?", getPlayerIP( player ), getPlayerSerial( player ), account.id )
+		if ( account.password == exports.security:hashString( password, account.salt ) ) then
+			local password, salt = exports.security:hashString( password, true )
+			
+			if ( password ) and ( salt ) and ( exports.database:execute( "UPDATE `accounts` SET `password` = ?, `last_login` = CURRENT_TIMESTAMP, `last_ip` = ?, `last_serial` = ?, `salt` = ? WHERE `id` = ?", password, getPlayerIP( player ), getPlayerSerial( player ), salt, account.id ) ) then
+				exports.security:modifyElementData( player, "database:id", account.id, true )
+				exports.security:modifyElementData( player, "account:username", account.username, true )
+				exports.security:modifyElementData( player, "account:level", account.level, true )
+				exports.security:modifyElementData( player, "account:duty", true, true )
+				exports.security:modifyElementData( player, "player:name", getPlayerName( player ), true )
+				
+				triggerClientEvent( player, "accounts:onLogin", player )
+				triggerClientEvent( player, "admin:showHUD", player )
+				
+				return true
+			end
 		end
-		
-		exports.security:modifyElementData( player, "database:id", account.id, true )
-		exports.security:modifyElementData( player, "account:username", account.username, true )
-		exports.security:modifyElementData( player, "account:level", account.level, true )
-		exports.security:modifyElementData( player, "account:duty", true, true )
-		exports.security:modifyElementData( player, "player:name", getPlayerName( player ), true )
-		
-		triggerClientEvent( player, "accounts:onLogin", player )
-		triggerClientEvent( player, "admin:showHUD", player )
-		
-		return true
 	end
-	
+
 	return false
 end
 
@@ -104,7 +110,7 @@ function logout( player )
 end
 
 function register( username, password )
-	local query = exports.database:query_single( "SELECT NULL FROM `accounts` WHERE `username` = ?", username )
+	local query = exports.database:query_single( "SELECT NULL FROM `accounts` WHERE `username` = ? LIMIT 1", username )
 	
 	if ( not query ) then
 		local accountID = create( username, password )

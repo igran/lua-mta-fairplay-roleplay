@@ -35,10 +35,10 @@ local function createServerKey( forceCreate )
 		local serverKeyFile = fileCreate( "server.key" )
 		
 		if ( serverKeyFile ) then
-			math.randomseed( getTickCount( ) .. math.random( 123, 789 ) .. tostring( serverKeyFile ) )
+			math.randomseed( getTickCount( ) .. math.random( 10000, 999999 ) .. tostring( serverKeyFile ) )
 			
 			local networkData = getNetworkUsageData( ).out
-				  networkData = #networkData > 0 and networkData[ math.random( #networkData ) ] or hash( "md5", getTickCount( ) )
+				  networkData = #networkData > 0 and networkData[ math.random( #networkData ) ] or hash( "md5", getTickCount( ) .. math.random( 1000, 9000 ) )
 			
 			local keyString = exports.common:getRandomString( keyCharsLength )
 				  keyString = hash( "sha512", keyString .. hash( "sha224", networkData .. getServerName( ) ) )
@@ -59,8 +59,15 @@ local function getServerKey( minified )
 	return not minified and serverKey or serverKey:sub( 5, 10 )
 end
 
-function hashString( string )
-	return hash( "sha512", string .. getServerKey( ) )
+function hashString( string, pureRandom )
+	math.randomseed( getTickCount( ) .. math.random( 10000, 999999 ) .. tostring( serverKeyFile ) )
+	
+	local networkData = getNetworkUsageData( ).out
+		  networkData = #networkData > 0 and networkData[ math.random( #networkData ) ] or hash( "md5", getTickCount( ) .. math.random( 1000, 9000 ) )
+	
+	local salt = type( pureRandom ) == "string" and pureRandom or ( pureRandom and getTickCount( ) .. math.random( 1000, 999999 ) .. networkData .. hash( "md5", getPlayerName( getRandomPlayer( ) ) .. getPlayerPing( getRandomPlayer( ) ) ) or getServerKey( ) )
+	
+	return hash( "sha512", string .. salt ), pureRandom and salt or nil
 end
 
 local function getHashedDataKey( string )

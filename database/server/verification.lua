@@ -40,6 +40,7 @@ database.verification = {
 		{ name = "last_action", type = "timestamp", default = "0000-00-00 00:00:00" },
 		{ name = "last_ip", type = "varchar", length = 128, default = "0.0.0.0" },
 		{ name = "last_serial", type = "varchar", length = 32, default = "13371337133713371337133713371337" },
+		{ name = "salt", type = "varchar", length = 1000, default = "" },
 		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
 	},
