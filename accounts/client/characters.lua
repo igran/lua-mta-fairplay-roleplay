@@ -35,6 +35,9 @@ local character_selection = {
 local selectedSkin = 1
 local selectedLanguage = 1
 
+local genderList = { "Male", "Female" }
+local skinColorList = { "White", "Black", "Asian" }
+
 function showCharacterSelection( forceEnd )
 	if ( isElement( character_selection.window ) ) then
 		destroyElement( character_selection.window )
@@ -176,20 +179,45 @@ function showCharacterSelection( forceEnd )
 		end, false
 	)
 	
+	local skins = { }
+	
+	local function updateSkins( )
+		local characterGender = guiComboBoxGetSelected( character_selection.combobox.gender ) + 1
+		local characterSkinColor = guiComboBoxGetSelected( character_selection.combobox.skin_color ) + 1
+		
+		skins = exports.common:getValidPedModelsByGenderAndColor( genderList[ characterGender ]:lower( ), skinColorList[ characterSkinColor ]:lower( ), "creation" )
+		
+		local found
+		
+		for _, skin in ipairs( skins ) do
+			if ( skin == selectedSkin ) then
+				found = true
+				break
+			end
+		end
+		
+		if ( not found ) then
+			selectedSkin = skins[ math.random( #skins ) ]
+			guiSetText( character_selection.label[ 7 ], "Skin (" .. selectedSkin .. ")" )
+			guiStaticImageLoadImage( character_selection.skin, "images/models/" .. selectedSkin .. ".png" )
+		end
+	end
+	
 	addEventHandler( "onClientGUIClick", character_selection.button.skin_previous,
 		function( )
-			local found = false
+			local found
 			
 			selectedSkin = selectedSkin - 1
 			
 			while ( not found ) do
 				if ( selectedSkin < 1 ) then
-					selectedSkin = getValidPedModels( )[ #getValidPedModels( ) ]
+					selectedSkin = skins[ #skins ]
 				end
 				
-				for _, skin in ipairs( getValidPedModels( ) ) do
+				for _, skin in ipairs( skins ) do
 					if ( skin == selectedSkin ) then
 						found = true
+						break
 					end
 				end
 				
@@ -208,18 +236,19 @@ function showCharacterSelection( forceEnd )
 	
 	addEventHandler( "onClientGUIClick", character_selection.button.skin_next,
 		function( )
-			local found = false
+			local found
 			
 			selectedSkin = selectedSkin + 1
 			
 			while ( not found ) do
-				if ( selectedSkin > getValidPedModels( )[ #getValidPedModels( ) ] ) then
+				if ( selectedSkin > skins[ #skins ] ) then
 					selectedSkin = 1
 				end
 				
-				for _, skin in ipairs( getValidPedModels( ) ) do
+				for _, skin in ipairs( skins ) do
 					if ( skin == selectedSkin ) then
 						found = true
+						break
 					end
 				end
 				
@@ -326,9 +355,6 @@ function showCharacterSelection( forceEnd )
 		
 		guiSetText( character_selection.edit.origin, origins[ math.random( #origins ) ] )
 		
-		local genderList = { "Male", "Female" }
-		local skinColorList = { "White", "Black", "Asian" }
-		
 		local genderSelected = math.random( 1, 2 )
 		local skinColorSelected = math.random( 1, 3 )
 		
@@ -348,6 +374,11 @@ function showCharacterSelection( forceEnd )
 	randomizeValues( )
 	
 	addEventHandler( "onClientGUIClick", character_selection.button.randomize, randomizeValues, false )
+	
+	updateSkins( )
+	
+	addEventHandler( "onClientGUIComboBoxAccepted", character_selection.combobox.skin_color, updateSkins )
+	addEventHandler( "onClientGUIComboBoxAccepted", character_selection.combobox.gender, updateSkins )
 end
 
 addEvent( "accounts:addCharacters", true )
