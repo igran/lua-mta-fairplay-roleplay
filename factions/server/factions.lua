@@ -105,7 +105,7 @@ function addCharacter( characterID, id, rank, isLeader )
 end
 
 function addPlayer( player, id )
-	return addCharacterToFaction( exports.common:getCharacterID( player ), id )
+	return addCharacter( exports.common:getCharacterID( player ), id )
 end
 
 function removeCharacter( characterID, id )
