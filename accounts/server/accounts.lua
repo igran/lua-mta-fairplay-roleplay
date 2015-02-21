@@ -219,5 +219,11 @@ addEventHandler( "accounts:ready", root,
 		
 		setPlayerHudComponentVisible( client, "all", false )
 		setPlayerHudComponentVisible( client, "clock", true )
+		
+		addEventHandler( "onPlayerChangeNick", client,
+			function( )
+				cancelEvent( )
+			end
+		)
 	end
 )
