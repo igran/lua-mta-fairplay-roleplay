@@ -244,6 +244,8 @@ function load( id )
 			name = query.name,
 			type = query.type,
 			motd = query.motd,
+			note = query.note,
+			leader_note = query.leader_note,
 			ranks = ranks,
 			players = { }
 		}

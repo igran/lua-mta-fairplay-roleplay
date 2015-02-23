@@ -76,6 +76,8 @@ database.verification = {
 		{ name = "name", type = "varchar", length = 50, default = "" },
 		{ name = "type", type = "smallint", length = 3, default = 1, is_unsigned = true },
 		{ name = "motd", type = "text" },
+		{ name = "note", type = "text" },
+		{ name = "leader_note", type = "text" },
 		{ name = "ranks", type = "text" },
 		{ name = "modified", type = "timestamp", default = "CURRENT_TIMESTAMP" },
 		{ name = "created", type = "timestamp", default = "0000-00-00 00:00:00" }
