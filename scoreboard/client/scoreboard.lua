@@ -29,6 +29,7 @@ local players = { }
 local colors = { online = tocolor( 80, 80, 80, 0.425 * 255 ), offline = tocolor( 40, 40, 40, 0.425 * 255 ), myself = tocolor( 150, 150, 150, 0.425 * 255 ) }
 	  colors.default = colors.offline
 local hudShowing = false
+local showAdminSign = false
 
 function updateScoreboardHUD( )
 	showHUD = exports.common:isPlayerPlaying( localPlayer )
@@ -136,7 +137,7 @@ function scoreboardHUD( )
 				playerIDText = exports.common:getPlayerID( player ) or ""
 				playerNameText = exports.common:getPlayerName( player )
 				
-				if ( exports.common:isPlayerServerTrialAdmin( player ) ) then
+				if ( exports.common:isPlayerServerTrialAdmin( player ) ) and ( showAdminSign ) then
 					playerNameText = "+ " .. playerNameText
 				end
 			elseif ( player.custom_id ) or ( player.custom_name ) then
