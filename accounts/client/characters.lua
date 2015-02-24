@@ -422,6 +422,8 @@ addEvent( "accounts:showCharacterSelection", true )
 addEventHandler( "accounts:showCharacterSelection", root,
 	function( )
 		showCharacterSelection( )
+		
+		exports.superman:setPlayerFlying( localPlayer, false )
 	end
 )
 
@@ -444,6 +446,15 @@ addEvent( "characters:onSpawn", true )
 addEventHandler( "characters:onSpawn", root,
 	function( )
 		setPedCameraRotation( localPlayer, getPedRotation( localPlayer ) - 180 )
+		
+		if ( exports.common:isPlayerServerTrialAdmin( localPlayer ) ) then
+			local x, y, z = getElementPosition( localPlayer )
+			local groundZ = getGroundPosition( x, y, z + 1 )
+			
+			if ( z > groundZ + 4 ) then
+				exports.superman:setPlayerFlying( localPlayer, true )
+			end
+		end
 		
 		if ( isBackgroundVisible ) then
 			isBackgroundVisible = false
