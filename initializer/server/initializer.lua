@@ -22,7 +22,7 @@
 	SOFTWARE.
 ]]
 
-local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman" }
+local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
 
 addEventHandler( "onResourceStart", resourceRoot,
 	function( )
