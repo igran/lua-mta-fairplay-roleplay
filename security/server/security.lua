@@ -85,11 +85,7 @@ end
 function modifyElementData( element, key, value, synchronized )
 	if ( isElement( element ) ) then
 		local hashedKey = getHashedDataKey( key )
-		local clearElementData
-		
-		if ( value == nil ) then
-			clearElementData = true
-		end
+		local clearElementData = value == nil and true or false
 		
 		cleanedFunctions.setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), false, false )
 		
