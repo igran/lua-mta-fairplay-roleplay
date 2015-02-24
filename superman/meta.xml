@@ -28,4 +28,6 @@
 	
 	<script src="client/superman.lua" type="client" cache="false" />
 	<script src="server/superman.lua" />
+	
+	<export function="setPlayerFlying" type="client" />
 </meta>
