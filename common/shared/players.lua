@@ -10,6 +10,28 @@ function getCharacterID( player )
 	return ( isElement( player ) and getElementData( player, "character:id" ) ) and tonumber( getElementData( player, "character:id" ) ) or false
 end
 
+function getPlayerAsTable( player )
+	if ( isPlayerPlaying( player ) ) then
+		local x, y, z = getElementPosition( player )
+		
+		return {
+			id = getCharacterID( player ),
+			name = getPlayerName( player ),
+			account = getAccountID( player ),
+			account_name = getAccountName( player ),
+			default_faction = getPlayerDefaultFaction( player ),
+			skin_id = getElementModel( player ),
+			x = x, y = y, z = z,
+			interior = getElementInterior( player ),
+			dimension = getElementDimension( player ),
+			last_played = getRealTime( ).timestamp,
+			player = player
+		}
+	end
+	
+	return false
+end
+
 function getPlayerByAccountID( accountID )
 	for _, player in ipairs( getElementsByType( "player" ) ) do
 		if ( getAccountID( player ) == accountID ) then
