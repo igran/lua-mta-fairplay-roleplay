@@ -253,13 +253,17 @@ function spawnCharacter( player, character, fade )
 	local character = type( character ) == "number" and getCharacter( character ) or ( type( character ) == "table" and character or nil )
 	
 	if ( character ) then
+		if ( not exports.cache:retrieve( "characters", { id = character.id } ) ) then
+			exports.cache:add( "characters", character )
+		end
+		
 		function play( player, character )
 			if ( isElement( player ) ) then
 				exports.security:modifyElementData( player, "player:playing", true, true )
 				
 				exports.security:modifyElementData( player, "character:id", character.id, true )
-				exports.security:modifyElementData( player, "character:name", character.name, true )
 				--temporarily took off these synced datas, who needs these anyway atm
+				--exports.security:modifyElementData( player, "character:name", character.name, true )
 				--exports.security:modifyElementData( player, "character:gender", character.gender, true )
 				--exports.security:modifyElementData( player, "character:skin_color", character.skin_color, true )
 				--exports.security:modifyElementData( player, "character:origin", character.origin, true )
@@ -318,7 +322,7 @@ function spawnCharacter( player, character, fade )
 				
 				fadeCamera( player, true, 2.0 )
 				
-				outputChatBox( "Welcome" .. ( not pendingTutorial and " back" or "" ) .. ", " .. character.name:gsub( "_", " " ) .. "!", player, 230, 180, 95 )
+				outputChatBox( "Welcome" .. ( not character.last_played:find( "0000" ) and " back" or "" ) .. ", " .. character.name:gsub( "_", " " ) .. "!", player, 230, 180, 95 )
 				
 				if ( pendingTutorial ) then
 					showChat( player, false )
