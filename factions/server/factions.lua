@@ -125,7 +125,7 @@ function removeCharacter( characterID, id )
 			local player = exports.common:getPlayerByCharacterID( data.id )
 
 			if ( player ) then
-				triggerClientEvent( player, "factions:update", player, { faction } )
+				loadPlayer( player )
 			end
 		end
 
@@ -379,6 +379,27 @@ addEventHandler( "factions:set_as_main", root,
 					outputChatBox( "You set " .. faction.name .. " as your default faction.", client, 230, 180, 95 )
 					exports.security:modifyElementData( client, "character:default_faction", factionID, true )
 					triggerClientEvent( client, "factions:update", client, { faction } )
+				end
+			end
+		end
+	end
+)
+
+addEvent( "factions:leave", true )
+addEventHandler( "factions:leave", root,
+	function( factionID )
+		if ( client ~= source ) then
+			return
+		end
+		
+		local faction = get( factionID )
+		
+		if ( faction ) and ( isInFaction( client, factionID ) ) then
+			if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) then
+				if ( removePlayer( client, factionID ) ) then
+					if ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ?", exports.common:getCharacterID( client ) ) ) then
+						exports.security:modifyElementData( client, "character:default_faction", 0, true )
+					end
 				end
 			end
 		end
