@@ -23,6 +23,11 @@
 ]]
 
 local factions = { }
+local threads = { }
+
+--local loadingFactionsGlobalID
+local loadingTimer
+local factionsToLoadCount = 0
 
 function getFactions( )
 	return factions
@@ -60,7 +65,7 @@ function create( name, type )
 		} )
 	end
 
-	local id = exports.database:insert_id( "INSERT INTO `factions` (`name`, `type`, `ranks`) VALUES (?, ?, ?)", name, type, toJSON( ranks ) )
+	local id = exports.database:insert_id( "INSERT INTO `factions` (`name`, `type`, `ranks`, `created`) VALUES (?, ?, ?, CURRENT_TIMESTAMP)", name, type, toJSON( ranks ) )
 
 	return id and load( id ) or false
 end
@@ -85,7 +90,7 @@ function addCharacter( characterID, id, rank, isLeader )
 	rank = tonumber( rank ) or 1
 	isLeader = type( isLeader ) == "boolean" and isLeader or false
 	
-	if ( not isCharacter( characterID, id ) ) and ( exports.database:execute( "INSERT INTO `factions_characters` (`character_id`, `faction_id`, `rank`, `is_leader`) VALUES (?, ?, ?, ?)", characterID, id, rank, isLeader ) ) then
+	if ( not isCharacter( characterID, id ) ) and ( exports.database:execute( "INSERT INTO `factions_characters` (`character_id`, `faction_id`, `rank`, `is_leader`, `created`) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)", characterID, id, rank, isLeader ) ) then
 		local faction = get( id )
 
 		table.insert( faction.players, { id = characterID, rank = rank, leader = isLeader } )
@@ -120,7 +125,7 @@ function removeCharacter( characterID, id )
 			local player = exports.common:getPlayerByCharacterID( data.id )
 
 			if ( player ) then
-				triggerClientEvent( player, "factions:update", player, { faction } )
+				loadPlayer( player )
 			end
 		end
 
@@ -153,19 +158,16 @@ function isPlayer( player, id, checkForLeadership )
 end
 
 function getCharacterFactions( characterID )
-	local query = exports.database:query( "SELECT `faction_id` FROM `factions_characters` WHERE `character_id` = ?", id )
-
+	local query = exports.database:query( "SELECT `faction_id` FROM `factions_characters` WHERE `character_id` = ?", characterID )
+	local playerFactions = { }
+	
 	if ( query ) then
-		local playerFactions = { }
-
 		for _, data in ipairs( query ) do
 			table.insert( playerFactions, data.faction_id )
 		end
-
-		return playerFactions
 	end
 
-	return { }
+	return playerFactions
 end
 
 function getPlayerFactions( player )
@@ -228,7 +230,7 @@ function setPlayerLeader( player, id, isLeader )
 	return setCharacterLeader( exports.common:getCharacterID( player ), id, isLeader )
 end
 
-function load( id )
+function load( id, hasCoroutine )
 	local _, index = get( id )
 
 	if ( factions[ index ] ) then
@@ -263,7 +265,7 @@ function load( id )
 			exports.database:execute( "UPDATE `factions` SET `ranks` = ? WHERE `id` = ?", toJSON( faction.ranks ) )
 		end
 
-		local players = exports.database:query( "SELECT `character_id` FROM `factions_characters` WHERE `faction_id` = ?", query.id )
+		local players = exports.database:query( "SELECT * FROM `factions_characters` WHERE `faction_id` = ?", query.id )
 
 		if ( players ) then
 			for _, data in ipairs( players ) do
@@ -275,7 +277,7 @@ function load( id )
 					exports.database:execute( "UPDATE `faction_characters` SET `rank` = ? WHERE `character_id` = ?", rank, data.character_id )
 				end
 
-				table.insert( faction.players, { id = data.character_id, rank = data.rank, leader = data.is_leader == 1 } )
+				table.insert( faction.players, { id = tonumber( data.character_id ), rank = tonumber( rank ), leader = data.is_leader == 1 } )
 
 				local player = exports.common:getPlayerByCharacterID( data.character_id )
 
@@ -286,25 +288,57 @@ function load( id )
 		end
 
 		table.insert( factions, faction )
+		
+		if ( hasCoroutine ) then
+			coroutine.yield( )
+		end
 
 		return get( id )
+	else
+		if ( hasCoroutine ) then
+			coroutine.yield( )
+		end
 	end
 
 	return false
 end
 
 function loadAll( )
-	local query = exports.database:query( "SELECT * FROM `factions`" )
+	--loadingVehiclesGlobalID = exports.messages:createGlobalMessage( "Loading factions. Please wait.", "factions-loading", true, false )
 
+	local query = exports.database:query( "SELECT * FROM `factions` ORDER BY `id`" )
+	
 	if ( query ) then
+		factionsToLoadCount = #query
+		
 		for _, data in ipairs( query ) do
-			load( data.id )
+			local loadCoroutine = coroutine.create( load )
+			coroutine.resume( loadCoroutine, data.id, true )
+			table.insert( threads, loadCoroutine )
 		end
+		
+		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 
 		return true
 	end
 
 	return false
+end
+
+function resumeCoroutines( )
+	for _, loadCoroutine in ipairs( threads ) do
+		coroutine.resume( loadCoroutine )
+	end
+	
+	if ( factionsToLoadCount ) and ( exports.common:count( factions ) >= factionsToLoadCount ) then
+		--exports.messages:destroyGlobalMessage( loadingFactionsGlobalID )
+		factionsToLoadCount = 0
+		threads = { }
+
+		if ( isTimer( loadingTimer ) ) then
+			killTimer( loadingTimer )
+		end
+	end
 end
 
 function loadPlayer( player )
@@ -318,7 +352,7 @@ function loadPlayer( player )
 		end
 	end
 	
-	triggerClientEvent( player, "factions:update", player, factions )
+	triggerClientEvent( player, "factions:update", player, playerFactions )
 end
 
 addEventHandler( "onResourceStart", resourceRoot,
@@ -327,8 +361,8 @@ addEventHandler( "onResourceStart", resourceRoot,
 	end
 )
 
-addEvent( "factions:set_as_main", true )
-addEventHandler( "factions:set_as_main", root,
+addEvent( "factions:default", true )
+addEventHandler( "factions:default", root,
 	function( factionID )
 		if ( client ~= source ) then
 			return
@@ -342,6 +376,25 @@ addEventHandler( "factions:set_as_main", root,
 					outputChatBox( "You set " .. faction.name .. " as your default faction.", client, 230, 180, 95 )
 					exports.security:modifyElementData( client, "character:default_faction", factionID, true )
 					triggerClientEvent( client, "factions:update", client, { faction } )
+				end
+			end
+		end
+	end
+)
+
+addEvent( "factions:leave", true )
+addEventHandler( "factions:leave", root,
+	function( factionID )
+		if ( client ~= source ) then
+			return
+		end
+		
+		local faction = get( factionID )
+		
+		if ( faction ) and ( isInFaction( client, factionID ) ) then
+			if ( removePlayer( client, factionID ) ) then
+				if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) and ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ? AND `default_faction` = ?", exports.common:getCharacterID( client ), factionID ) ) then
+					exports.security:modifyElementData( client, "character:default_faction", 0, true )
 				end
 			end
 		end
