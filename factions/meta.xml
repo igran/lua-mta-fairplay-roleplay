@@ -53,4 +53,5 @@
 	<export function="loadPlayer" />
 	
 	<export function="getFactionType" type="shared" />
+	<export function="isGovernmentFaction" type="shared" />
 </meta>

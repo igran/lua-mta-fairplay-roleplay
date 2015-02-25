@@ -22,9 +22,13 @@
 	SOFTWARE.
 ]]
 
-factionTypes = { "Other", "Law", "Medical", "News", "Gang", "Mafia" }
+factionTypes = { "Legal", "Law", "Medical", "Government", "Illegal" }
 factionRankCount = 20
 
 function getFactionType( type )
 	return factionTypes[ type ] or "Unknown"
+end
+
+function isGovernmentFaction( type )
+	return ( type == 2 ) or ( type == 3 ) or ( type == 4 )
 end
