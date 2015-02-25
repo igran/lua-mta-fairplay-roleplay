@@ -170,7 +170,7 @@ function resumeCoroutines( )
 	
 	if ( interiorsToLoadCount ) and ( exports.common:count( interiors ) >= interiorsToLoadCount ) then
 		--exports.messages:destroyGlobalMessage( loadingInteriorsGlobalID )
-		interiorsToLoadCount = nil
+		interiorsToLoadCount, threads = nil, nil
 		
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )

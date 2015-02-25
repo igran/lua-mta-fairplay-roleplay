@@ -242,7 +242,7 @@ function resumeCoroutines( )
 	
 	if ( vehiclesToLoadCount ) and ( exports.common:count( vehicles ) >= vehiclesToLoadCount ) then
 		--exports.messages:destroyGlobalMessage( loadingVehiclesGlobalID )
-		vehiclesToLoadCount = nil
+		vehiclesToLoadCount, threads = nil, nil
 		
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )
