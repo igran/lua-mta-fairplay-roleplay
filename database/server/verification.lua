@@ -238,7 +238,7 @@ database.verification = {
 database.utility.keys = { unique = true, primary = true, index = true }
 function getFormattedKeyType( keyValue, keyType )
 	if ( keyValue ) and ( database.utility.keys[ keyType ] ) then
-		return "\r\n" .. ( keyType ~= "index" and keyType:upper( ) .. " " or "" ) .. "KEY (`" .. keyValue .. "`),"
+		return "\r\n" .. ( keyType ~= "index" and keyType:upper( ) .. " " or "" ) .. "KEY (`" .. escape_string( keyValue, "char_digit_special" ) .. "`),"
 	end
 	
 	return ""
@@ -265,37 +265,48 @@ function isKeyword( string )
 end
 
 function verify_table( tableName )
+	local databaseName = escape_string( database.configuration.database, "char_digit_special" )
 	local tableName = escape_string( tableName, "char_digit_special" )
 	
 	if ( tableName ) and ( database.verification[ tableName ] ) then
-		local query = query( "SELECT 1 FROM `" .. tableName .. "`" )
+		local query = query_single( "SELECT COUNT(*) as `count` FROM `information_schema.tables` WHERE `table_schema` = ? AND `table_name` = ? LIMIT 1", databaseName, tableName )
 		
 		if ( query ) then
-			return true, 0
-		else
-			outputDebugString( "DATABASE: Don't mind the warning messages above; verify_table is running right now." )
-			
-			local query_string = "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` ("
-			
-			for columnID, columnData in ipairs( database.verification[ tableName ] ) do
-				query_string = query_string .. "\r\n`" .. columnData.name .. "` " .. columnData.type .. ( columnData.length and "(" .. columnData.length .. ")" or "" ) .. ( columnData.is_unsigned and " unsigned" or "" ) .. " " .. ( columnData.is_null and "NULL" or "NOT NULL" ) .. ( columnData.default and " DEFAULT " .. ( not isKeyword( columnData.default ) and "'" or "" ) .. columnData.default .. ( not isKeyword( columnData.default ) and "'" or "" ) or "" ) .. ( columnData.is_auto_increment and " AUTO_INCREMENT" or "" ) .. ( #database.verification[ tableName ] ~= columnID and "," or "" ) .. getFormattedKeyType( columnData.name, columnData.key_type )
-			end
-			
-			query_string = query_string .. "\r\n) ENGINE=" .. database.configuration.default_engine .. " DEFAULT CHARSET=" .. database.configuration.default_charset .. ";"
-			
-			if ( execute( query_string ) ) then
-				outputDebugString( "DATABASE: Created table '" .. tableName .. "'." )
-				
-				return true, 2
+			if ( query.count > 0 ) then
+				return true, 1
 			else
-				outputDebugString( "DATABASE: Unable to create table '" .. tableName .. "'.", 2 )
+				--outputDebugString( "DATABASE: Don't mind the warning messages above; verify_table is running right now." )
 				
-				return false, 2
+				local query_string = "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` ("
+				
+				for columnID, columnData in ipairs( database.verification[ tableName ] ) do
+					query_string = query_string .. "\r\n`" .. escape_string( columnData.name, "char_digit_special" ) .. "` " .. escape_string( columnData.type, "char_digit_special" ) .. ( columnData.length and "(" .. escape_string( columnData.length, "digit" ) .. ")" or "" ) .. ( columnData.is_unsigned and " unsigned" or "" ) .. " " .. ( columnData.is_null and "NULL" or "NOT NULL" ) .. ( columnData.default and " DEFAULT " .. ( not isKeyword( columnData.default ) and "'" or "" ) .. escape_string( columnData.default ) .. ( not isKeyword( columnData.default ) and "'" or "" ) or "" ) .. ( columnData.is_auto_increment and " AUTO_INCREMENT" or "" ) .. ( #database.verification[ tableName ] ~= columnID and "," or "" ) .. getFormattedKeyType( columnData.name, columnData.key_type )
+				end
+				
+				-- sql injections possible here, but f*ck it, cba to make a list of engines and charsets at the moment
+				query_string = query_string .. "\r\n) ENGINE=" .. database.configuration.default_engine .. " DEFAULT CHARSET=" .. database.configuration.default_charset .. ";"
+				
+				if ( execute( query_string ) ) then
+					outputDebugString( "DATABASE: Created table '" .. tableName .. "'." )
+					
+					return true, 2
+				else
+					outputDebugString( "DATABASE: Unable to create table '" .. tableName .. "'.", 2 )
+					
+					return false, 3
+				end
 			end
-			
-			return false
+		else
+			if ( ping( ) ) then
+				outputDebugString( "DATABASE: Database is possibly corrupted! Please make sure information_schema exists and is accessible by your SQL user '" .. database.configuration.username .. "' (" .. ( database.configuration.password == "" and "without password" : "with password" ) .. ") at " .. database.configuration.hostname .. "@" .. databaseName .. ".", 2 )
+			else
+				outputDebugString( "DATABASE: Database connection is missing! Please confirm your SQL information for user '" .. database.configuration.username .. "' (" .. ( database.configuration.password == "" and "without password" : "with password" ) .. ") at " .. database.configuration.hostname .. "@" .. databaseName .. ".", 2 )
+			end
+
+			return false, 2
 		end
 	end
+
 	return false, 1
 end
 
@@ -311,10 +322,16 @@ addEventHandler( "onResourcePreStart", root,
 			for _,database in ipairs( database.configuration.automated_resources[ getResourceName( resource ) ] ) do
 				local _return, _code = verify_table( database )
 				
-				if ( _return ) and ( _code > 0 ) then
-					outputDebugString( "DATABASE: Verification check completed for \"" .. database .. "\": database created." )
+				if ( _return ) then
+					if ( _code == 2 ) then
+						outputDebugString( "DATABASE: Verification check completed for \"" .. database .. "\": database created." )
+					end
 				else
-					--outputDebugString( "DATABASE: Verification check completed for \"" .. database .. "\": database wasn't created, because it already exists, most probably." )
+					outputDebugString( "DATABASE: Verification check completed, but had errors. Cancelled resource start for " .. getResourceName( resource ) .. "." )
+					
+					cancelEvent( )
+
+					break
 				end
 			end
 		end
