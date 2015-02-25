@@ -23,6 +23,11 @@
 ]]
 
 local factions = { }
+local threads = { }
+
+--local loadingFactionsGlobalID
+local loadingTimer
+local factionsToLoadCount = 0
 
 function getFactions( )
 	return factions
@@ -228,7 +233,7 @@ function setPlayerLeader( player, id, isLeader )
 	return setCharacterLeader( exports.common:getCharacterID( player ), id, isLeader )
 end
 
-function load( id )
+function load( id, hasCoroutine )
 	local _, index = get( id )
 
 	if ( factions[ index ] ) then
@@ -287,24 +292,56 @@ function load( id )
 
 		table.insert( factions, faction )
 
+		if ( hasCoroutine ) then
+			coroutine.yield( )
+		end
+
 		return get( id )
+	else
+		if ( hasCoroutine ) then
+			coroutine.yield( )
+		end
 	end
 
 	return false
 end
 
 function loadAll( )
-	local query = exports.database:query( "SELECT * FROM `factions`" )
+	--loadingVehiclesGlobalID = exports.messages:createGlobalMessage( "Loading factions. Please wait.", "factions-loading", true, false )
+
+	local query = exports.database:query( "SELECT * FROM `factions` ORDER BY `id`" )
 
 	if ( query ) then
+		factionsToLoadCount = #query
+
 		for _, data in ipairs( query ) do
-			load( data.id )
+			local loadCoroutine = coroutine.create( load )
+			coroutine.resume( loadCoroutine, data.id, true )
+			table.insert( threads, loadCoroutine )
 		end
+		
+		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
 
 		return true
 	end
 
 	return false
+end
+
+function resumeCoroutines( )
+	for _, loadCoroutine in ipairs( threads ) do
+		coroutine.resume( loadCoroutine )
+	end
+	
+	if ( factionsToLoadCount ) and ( exports.common:count( factions ) >= factionsToLoadCount ) then
+		--exports.messages:destroyGlobalMessage( loadingFactionsGlobalID )
+		factionsToLoadCount = 0
+		threads = { }
+
+		if ( isTimer( loadingTimer ) ) then
+			killTimer( loadingTimer )
+		end
+	end
 end
 
 function loadPlayer( player )
