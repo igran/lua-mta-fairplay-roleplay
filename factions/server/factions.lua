@@ -395,11 +395,9 @@ addEventHandler( "factions:leave", root,
 		local faction = get( factionID )
 		
 		if ( faction ) and ( isInFaction( client, factionID ) ) then
-			if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) then
-				if ( removePlayer( client, factionID ) ) then
-					if ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ?", exports.common:getCharacterID( client ) ) ) then
-						exports.security:modifyElementData( client, "character:default_faction", 0, true )
-					end
+			if ( removePlayer( client, factionID ) ) then
+				if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) and ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ?", exports.common:getCharacterID( client ) ) ) then
+					exports.security:modifyElementData( client, "character:default_faction", 0, true )
 				end
 			end
 		end
