@@ -159,7 +159,11 @@ function loadAll( )
 		end
 		
 		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
+
+		return true
 	end
+
+	return false
 end
 addEventHandler( "onResourceStart", resourceRoot, loadAll )
 
@@ -170,7 +174,8 @@ function resumeCoroutines( )
 	
 	if ( interiorsToLoadCount ) and ( exports.common:count( interiors ) >= interiorsToLoadCount ) then
 		--exports.messages:destroyGlobalMessage( loadingInteriorsGlobalID )
-		interiorsToLoadCount = nil
+		interiorsToLoadCount = 0
+		threads = { }
 		
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )

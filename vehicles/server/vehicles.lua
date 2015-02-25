@@ -232,7 +232,11 @@ function loadAll( )
 		end
 		
 		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
+
+		return true
 	end
+
+	return false
 end
 
 function resumeCoroutines( )
@@ -242,13 +246,12 @@ function resumeCoroutines( )
 	
 	if ( vehiclesToLoadCount ) and ( exports.common:count( vehicles ) >= vehiclesToLoadCount ) then
 		--exports.messages:destroyGlobalMessage( loadingVehiclesGlobalID )
-		vehiclesToLoadCount = nil
+		vehiclesToLoadCount = 0
+		threads = { }
 		
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )
 		end
-		
-		threads = { }
 	end
 end
 

@@ -121,7 +121,11 @@ function loadAll( )
 		end
 		
 		loadingTimer = setTimer( resumeCoroutines, 1000, 4 )
+
+		return true
 	end
+
+	return false
 end
 addEventHandler( "onResourceStart", resourceRoot, loadAll )
 
@@ -132,7 +136,8 @@ function resumeCoroutines( )
 	
 	if ( exports.common:count( shops ) >= shopsToLoadCount ) then
 		--exports.messages:destroyGlobalMessage( loadingShopsGlobalID )
-		shopsToLoadCount = nil
+		shopsToLoadCount = 0
+		threads = { }
 		
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )

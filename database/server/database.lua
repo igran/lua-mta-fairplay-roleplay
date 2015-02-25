@@ -176,19 +176,19 @@ function free_result( queryHandler )
 	return false
 end
 
-function escape_string( string, caution )
+function escape_string( string, pattern )
 	if ( not string ) then
 		outputDebugString( "DATABASE: String-to-be-escaped is missing.", 1 )
 		return false, 1
 	end
 	
-	local string, caution = tostring( string ), ( ( caution and patterns[ caution ] ) and caution or "all_no_double" )
+	local string, pattern = tostring( string ), ( ( pattern and patterns[ pattern ] ) and pattern or "all_no_double" )
 	
-	if ( patterns[ caution ][ 2 ] ) then
+	if ( patterns[ pattern ][ 2 ] ) then
 		while string:find( "  " ) do
 			string = string:gsub( "  ", " " )
 		end
 	end
 	
-	return ( tonumber( tostring( string:gsub( patterns[ caution ][ 1 ], "" ) ) ) and tonumber( tostring( string:gsub( patterns[ caution ][ 1 ], "" ) ) ) or tostring( string:gsub( patterns[ caution ][ 1 ], "" ) ) )
+	return ( tonumber( tostring( string:gsub( patterns[ pattern ][ 1 ], "" ) ) ) and tonumber( tostring( string:gsub( patterns[ pattern ][ 1 ], "" ) ) ) or tostring( string:gsub( patterns[ pattern ][ 1 ], "" ) ) )
 end
