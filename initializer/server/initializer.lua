@@ -22,7 +22,8 @@
 	SOFTWARE.
 ]]
 
-local threads, loadingTimer, isGlobalStart, startTick, loadedResources = { }
+local threads, loadingTimer, isGlobalStart, startTick = { }
+local loadedResources = 0
 local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
 local isThreadedMode = true
 
