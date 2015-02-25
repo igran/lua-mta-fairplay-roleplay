@@ -22,6 +22,8 @@
 	SOFTWARE.
 ]]
 
+local localConnection
+
 database.configuration.automated_resources = { accounts = { "accounts", "characters" }, admin = { "ticket_logs" }, chat = { "languages" }, factions = { "factions", "factions_characters" }, interiors = { "interiors" }, items = { "inventory", "worlditems" }, shops = { "shops" }, vehicles = { "vehicles", "vehicles_model_sets" } }
 database.configuration.default_charset = get( "default_charset" ) or "utf8"
 database.configuration.default_engine = get( "default_engine" ) or "InnoDB"
@@ -264,29 +266,78 @@ function isKeyword( string )
 	return false
 end
 
+local function doesTableExist( databaseName, tableName )
+	localConnection = dbConnect( database.configuration.database_type, ( database.configuration.database_type == "sqlite" and database.configuration.database_file or "dbname=information_schema;host=" .. database.configuration.hostname ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.username ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.password ), "share=0;batch=" .. database.configuration.database_batch .. ";log=" .. database.configuration.database_log .. ";tag=" .. database.configuration.database_tag )
+	
+	if ( localConnection ) then
+		local databaseName = escape_string( databaseName, "char_digit_special" )
+		local tableName = escape_string( tableName, "char_digit_special" )
+		local query = dbQuery( localConnection, "SELECT COUNT(*) as `count` FROM `tables` WHERE `table_schema` = ? AND `table_name` = ? LIMIT 1", databaseName, tableName )
+		
+		if ( query ) then
+			local result = dbPoll( query, -1 )
+			
+			destroyElement( localConnection )
+			localConnection = nil
+			
+			if ( result ) then
+				return result[ 1 ].count
+			end
+		end
+	end
+	
+	return false
+end
+
 function verify_table( tableName )
 	local databaseName = escape_string( database.configuration.database, "char_digit_special" )
 	local tableName = escape_string( tableName, "char_digit_special" )
 	
 	if ( tableName ) and ( database.verification[ tableName ] ) then
-		local query = query_single( "SELECT COUNT(*) as `count` FROM `information_schema.tables` WHERE `table_schema` = ? AND `table_name` = ? LIMIT 1", databaseName, tableName )
+		local result = doesTableExist( databaseName, tableName )
 		
-		if ( query ) then
-			if ( query.count > 0 ) then
+		if ( result ) then
+			if ( result > 0 ) then
 				return true, 1
 			else
-				--outputDebugString( "DATABASE: Don't mind the warning messages above; verify_table is running right now." )
-				
-				local query_string = "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` ("
+				local arguments = { tableName }
+				local query_string = "CREATE TABLE IF NOT EXISTS `??` ("
 				
 				for columnID, columnData in ipairs( database.verification[ tableName ] ) do
-					query_string = query_string .. "\r\n`" .. escape_string( columnData.name, "char_digit_special" ) .. "` " .. escape_string( columnData.type, "char_digit_special" ) .. ( columnData.length and "(" .. escape_string( columnData.length, "digit" ) .. ")" or "" ) .. ( columnData.is_unsigned and " unsigned" or "" ) .. " " .. ( columnData.is_null and "NULL" or "NOT NULL" ) .. ( columnData.default and " DEFAULT " .. ( not isKeyword( columnData.default ) and "'" or "" ) .. escape_string( columnData.default ) .. ( not isKeyword( columnData.default ) and "'" or "" ) or "" ) .. ( columnData.is_auto_increment and " AUTO_INCREMENT" or "" ) .. ( #database.verification[ tableName ] ~= columnID and "," or "" ) .. getFormattedKeyType( columnData.name, columnData.key_type )
+					table.insert( arguments, columnData.name )
+					table.insert( arguments, columnData.type )
+					
+					if ( columnData.length ) then
+						table.insert( arguments, columnData.length )
+					end
+					
+					if ( columnData.default ) and ( not isKeyword( columnData.default ) ) then
+						table.insert( arguments, columnData.default )
+					end
+					
+					query_string = query_string .. "\r\n`??` ??" .. ( columnData.length and "(??)" or "" ) .. ( columnData.is_unsigned and " UNSIGNED" or "" ) .. " " .. ( columnData.is_null and "NULL" or "NOT NULL" ) .. ( columnData.default and " DEFAULT " .. ( not isKeyword( columnData.default ) and "?" or columnData.default ) or "" ) .. ( columnData.is_auto_increment and " AUTO_INCREMENT" or "" ) .. ( #database.verification[ tableName ] ~= columnID and "," or "" ) .. getFormattedKeyType( columnData.name, columnData.key_type )
 				end
 				
-				-- sql injections possible here, but f*ck it, cba to make a list of engines and charsets at the moment
-				query_string = query_string .. "\r\n) ENGINE=" .. database.configuration.default_engine .. " DEFAULT CHARSET=" .. database.configuration.default_charset .. ";"
+				table.insert( arguments, database.configuration.default_engine )
+				table.insert( arguments, database.configuration.default_charset )
 				
-				if ( execute( query_string ) ) then
+				query_string = query_string .. "\r\n) ENGINE=?? DEFAULT CHARSET=??;"
+				
+				--[[
+				--debugging, just to illustrate the sql query as mta returns it
+				local query_string_filled = query_string
+				
+				for _, value in ipairs( arguments ) do
+					local next = query_string_filled:find( "?" )
+					
+					if ( next ) then
+						local isDouble = query_string_filled:sub( next + 1, next + 1 ) == "?"
+						query_string_filled = query_string_filled:sub( 1, next - 1 ) .. ( not isDouble and "'" or "" ) .. value .. ( not isDouble and "'" or "" ) .. query_string_filled:sub( next + ( isDouble and 2 or 1 ) )
+					end
+				end
+				]]
+				
+				if ( execute( query_string, unpack( arguments ) ) ) then
 					outputDebugString( "DATABASE: Created table '" .. tableName .. "'." )
 					
 					return true, 2
@@ -316,18 +367,21 @@ end
 
 addEventHandler( "onResourcePreStart", root,
 	function( resource )
-		if ( database.configuration.automated_resources[ getResourceName( resource ) ] ) then
-			outputDebugString( "DATABASE: Verification check will be ran on just started '" .. getResourceName( resource ) .. "' resource." )
+		local resourceName = getResourceName( resource )
+		local tables = database.configuration.automated_resources[ resourceName ]
+		
+		if ( tables ) then
+			outputDebugString( "DATABASE: Verification check will be ran on '" .. resourceName .. "' resource (awaiting check on " .. #tables .. " table" .. ( #tables > 1 and "s" or "" ) .. ")." )
 			
-			for _,database in ipairs( database.configuration.automated_resources[ getResourceName( resource ) ] ) do
+			for _,database in ipairs( tables ) do
 				local _return, _code = verify_table( database )
 				
 				if ( _return ) then
 					if ( _code == 2 ) then
-						outputDebugString( "DATABASE: Verification check completed for \"" .. database .. "\": database created." )
+						outputDebugString( "DATABASE: Verification check completed on '" .. resourceName .. "' for '" .. database .. "' (database created)." )
 					end
 				else
-					outputDebugString( "DATABASE: Verification check completed, but had errors. Cancelled resource start for " .. getResourceName( resource ) .. "." )
+					outputDebugString( "DATABASE: Verification check completed on '" .. resourceName .. "' for '" .. database .. "', but errors occurred. Resource start has been cancelled!" )
 					
 					cancelEvent( )
 

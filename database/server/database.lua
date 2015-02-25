@@ -53,7 +53,7 @@ local patterns = {
 }
 
 local function connect( )
-	database.queue.connection = dbConnect( database.configuration.database_type, ( database.configuration.database_type == "sqlite" and database.configuration.database_file or "dbname=" .. database.configuration.database .. ";host=" .. database.configuration.hostname ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.username ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.password ), "share=1;batch=" .. database.configuration.database_batch .. ";log=" .. database.configuration.database_log .. ";tag=" .. database.configuration.database_tag )
+	database.queue.connection = dbConnect( database.configuration.database_type, ( database.configuration.database_type == "sqlite" and database.configuration.database_file or "dbname=" .. database.configuration.database .. ";host=" .. database.configuration.hostname ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.username ), ( database.configuration.database_type == "sqlite" and "" or database.configuration.password ), "share=0;batch=" .. database.configuration.database_batch .. ";log=" .. database.configuration.database_log .. ";tag=" .. database.configuration.database_tag )
 	
 	if ( database.queue.connection ) then
 		database.connection = database.queue.connection
