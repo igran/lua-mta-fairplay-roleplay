@@ -364,8 +364,8 @@ addEventHandler( "onResourceStart", resourceRoot,
 	end
 )
 
-addEvent( "factions:set_as_main", true )
-addEventHandler( "factions:set_as_main", root,
+addEvent( "factions:default", true )
+addEventHandler( "factions:default", root,
 	function( factionID )
 		if ( client ~= source ) then
 			return
@@ -396,7 +396,7 @@ addEventHandler( "factions:leave", root,
 		
 		if ( faction ) and ( isInFaction( client, factionID ) ) then
 			if ( removePlayer( client, factionID ) ) then
-				if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) and ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ?", exports.common:getCharacterID( client ) ) ) then
+				if ( exports.common:getPlayerDefaultFaction( client ) == factionID ) and ( exports.database:execute( "UPDATE `characters` SET `default_faction` = '0' WHERE `id` = ? AND `default_faction` = ?", exports.common:getCharacterID( client ), factionID ) ) then
 					exports.security:modifyElementData( client, "character:default_faction", 0, true )
 				end
 			end
