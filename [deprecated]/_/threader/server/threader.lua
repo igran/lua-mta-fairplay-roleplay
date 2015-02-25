@@ -35,8 +35,8 @@ function cancel( threadName )
 	return false
 end
 
-function create( threadName, threadFunction, yieldsCount )
-	table.insert( threadQueue, { name = threadName, func = threadFunction, yieldsCount = yieldsCount } )
+function create( threadName, threadFunction, threadSpeed, yieldsCount )
+	table.insert( threadQueue, { name = threadName, func = threadFunction, speed = threadSpeed or 50, yieldsCount = yieldsCount or 5 } )
 
 	if ( not thread ) then
 		next( )
@@ -67,7 +67,7 @@ function next( )
 				stop( )
 				next( )
 			end
-		end, thread.speed or 50, thread.yieldsCount )
+		end, thread.speed, thread.yieldsCount )
 
 		return thread
 	end

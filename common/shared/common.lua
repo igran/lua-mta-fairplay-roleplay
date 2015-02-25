@@ -104,17 +104,24 @@ function formatDate( string, preparedString )
 	local dateAndTime = split( string, " " )
 	local date = split( dateAndTime[ 1 ], "-" )
 	local time = split( dateAndTime[ 2 ], ":" )
-
-	local thExtension = { "st", "nd", "rd" }
-	local day = date[ 3 ]:len( ) >= 2 and date[ 3 ]:sub( 2, 2 ) or date[ 3 ]
-		  day = tonumber( day )
-		  day = date[ 3 ] .. ( thExtension[ day ] or "th" )
-		  day = day:sub( 1, 1 ) == "0" and day:sub( 2 ) or day
-
-	local months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }
-	local month = tostring( months[ tonumber( date[ 2 ] ) ] )
 	
-	return preparedString and day .. " of " .. month .. " " .. date[ 1 ] .. " " .. dateAndTime[ 2 ] or { day = day, month = month, year = date[ 1 ], hour = time[ 1 ], minute = time[ 2 ], second = time[ 3 ] }
+	local day = tonumber( date[ 3 ] )
+	local month = tonumber( date[ 2 ] )
+	
+	if ( preparedString ) then
+		local thExtension = { "st", "nd", "rd" }
+		
+		day = date[ 3 ]:len( ) >= 2 and date[ 3 ]:sub( 2, 2 ) or date[ 3 ]
+		day = tonumber( day )
+		day = date[ 3 ] .. ( thExtension[ day ] or "th" )
+		day = day:sub( 1, 1 ) == "0" and day:sub( 2 ) or day
+		
+		local months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }
+		
+		month = tostring( months[ month ] )
+	end
+	
+	return preparedString and day .. " of " .. month .. " " .. date[ 1 ] .. " " .. dateAndTime[ 2 ] or { day = day, month = tonumber( date[ 2 ] ), year = date[ 1 ], hour = time[ 1 ], minute = time[ 2 ], second = time[ 3 ] }
 end
 
 function formatMoney( number )  
@@ -129,6 +136,26 @@ function formatMoney( number )
 	end
 
 	return formatted
+end
+
+function formatSecondsToText( seconds )
+	seconds = getRealTime( ).timestamp - seconds
+	
+	if ( seconds ) then
+		local results = { }
+		local hours = math.floor( seconds / 3600 ) == 24 and 0 or math.floor( seconds / 3600 )
+		local days  = math.floor( seconds / 86400 - hours )
+		local mins  = math.floor( ( seconds - math.floor( seconds / 3600 ) * 3600 ) / 60 )
+		local secs  = math.floor( seconds % 60 )
+		
+		local daysF = days > 0 and table.insert( results, days .. ( days == 1 and " day" or " days" ) )
+		local hoursF = hours > 0 and table.insert( results, hours .. ( hours == 1 and " hour" or " hours" ) )
+		local minsF = mins > 0 and table.insert( results, mins .. ( mins == 1 and " min" or " mins" ) )
+		local secsF = secs > 0 and table.insert( results, secs .. ( secs == 1 and " sec" or " secs" ) )
+		return table.concat( results, ", " ):reverse( ):gsub( ( ", " ):reverse( ), ( " and " ):reverse( ), 1 ):reverse( )
+	end
+	
+	return ""
 end
 
 function formatString( string )
@@ -155,6 +182,26 @@ end
 
 function getSplitValues( string )
 	return split( string, ";_;" )
+end
+
+function getTimestamp( year, month, day, hour, minute, second )
+	local monthseconds = { 2678400, 2419200, 2678400, 2592000, 2678400, 2592000, 2678400, 2678400, 2592000, 2678400, 2592000, 2678400 }
+	local timestamp = 0
+	local datetime = getRealTime( )
+	year, month, day = year or datetime.year + 1900, month or datetime.month + 1, day or datetime.monthday
+	hour, minute, second = hour or datetime.hour, minute or datetime.minute, second or datetime.second
+	
+	for i = 1970, year - 1 do
+		timestamp = timestamp + ( isLeapYear( i ) and 31622400 or 31536000 )
+	end
+	
+	for i = 1, month - 1 do
+		timestamp = timestamp + ( ( isLeapYear( year ) and i == 2 ) and 2505600 or monthseconds[ i ] )
+	end
+	
+	timestamp = ( timestamp + 86400 * ( day - 1 ) + 3600 * hour + 60 * minute + second ) - 3600
+	
+	return datetime.isdst and timestamp - 3600 or timestamp
 end
 
 function getValidPedModelsByGenderAndColor( gender, color, type )

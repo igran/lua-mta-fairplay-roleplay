@@ -76,6 +76,10 @@ function login( player, username, password )
 				triggerClientEvent( player, "accounts:onLogin", player )
 				triggerClientEvent( player, "admin:showHUD", player )
 				
+				if ( not exports.cache:retrieve( "accounts", { id = account.id } ) ) then
+					exports.cache:add( "accounts", account )
+				end
+				
 				return true
 			end
 		end

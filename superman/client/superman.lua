@@ -62,7 +62,7 @@ local function isPlayerFlying(player)
   else return true end
 end
 
-local function setPlayerFlying(player, state)
+function setPlayerFlying(player, state)
   if state == true then state = true
   else state = false end
 
@@ -381,12 +381,12 @@ function Superman.processControls()
   -- Calculate the new current speed
   if self.currentSpeed ~= 0 and (DirectionModule == 0 or self.currentSpeed > maxSpeed) then
     -- deccelerate
-    self.currentSpeed = self.currentSpeed - acceleration
+    self.currentSpeed = not self.currentSpeed and 0 or self.currentSpeed - acceleration
     if self.currentSpeed < 0 then self.currentSpeed = 0 end
 
   elseif DirectionModule ~= 0 and self.currentSpeed < maxSpeed then
     -- accelerate
-    self.currentSpeed = self.currentSpeed + acceleration
+    self.currentSpeed = not self.currentSpeed and 0 or self.currentSpeed + acceleration
     if self.currentSpeed > maxSpeed then self.currentSpeed = maxSpeed end
 
   end

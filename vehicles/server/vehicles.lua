@@ -247,6 +247,8 @@ function resumeCoroutines( )
 		if ( isTimer( loadingTimer ) ) then
 			killTimer( loadingTimer )
 		end
+		
+		threads = { }
 	end
 end
 
