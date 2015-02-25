@@ -189,7 +189,7 @@ addEventHandler( "onResourceStart", resourceRoot,
 				end
 			end
 		else
-			outputDebugString( "World item select query returned something weird => (" .. tostring( query ) .. ")[" .. type( query ) .. "]" )
+			outputDebugString( "World item select query returned something weird => (" .. tostring( query ) .. ")[" .. type( query ) .. "]", 2 )
 		end
 	end
 )
