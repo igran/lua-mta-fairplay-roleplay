@@ -23,7 +23,7 @@
 ]]
 
 local threads, loadingTimer, isGlobalStart, startTick, loadedResources = { }
-local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman" }
+local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
 local isThreadedMode = true
 
 local function resumeCoroutines( )
