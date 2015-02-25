@@ -300,7 +300,7 @@ function verify_table( tableName )
 			if ( ping( ) ) then
 				outputDebugString( "DATABASE: Database is possibly corrupted! Please make sure information_schema exists and is accessible by your SQL user '" .. database.configuration.username .. "' (" .. ( database.configuration.password == "" and "without password" or "with password" ) .. ") at " .. database.configuration.hostname .. "@" .. databaseName .. ".", 2 )
 			else
-				outputDebugString( "DATABASE: Database connection is missing! Please confirm your SQL information for user '" .. database.configuration.username .. "' (" .. ( database.configuration.password == "" and "without password" : "with password" ) .. ") at " .. database.configuration.hostname .. "@" .. databaseName .. ".", 2 )
+				outputDebugString( "DATABASE: Database connection is missing! Please confirm your SQL information for user '" .. database.configuration.username .. "' (" .. ( database.configuration.password == "" and "without password" or "with password" ) .. ") at " .. database.configuration.hostname .. "@" .. databaseName .. ".", 2 )
 			end
 
 			return false, 2
