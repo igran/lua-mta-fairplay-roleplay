@@ -22,12 +22,14 @@
 	SOFTWARE.
 ]]
 
+--[[
 local obfuscate_script = false
 local compile_script = obfuscate_script or false
 
 local compiler_address = "http://luac.mtasa.com/?compile=" .. ( compile_script and 1 or 0 ) .. "&debug=0&obfuscate=" .. ( obfuscate_script and 1 or 0 )
 local resource_config_file = "meta.xml"
 local combined_script_file_name = "script"
+]]
 
 function load_resource( resource_name )
 	local resource = getResourceFromName( resource_name )
