@@ -368,12 +368,12 @@ end
 addEventHandler( "onResourcePreStart", root,
 	function( resource )
 		local resourceName = getResourceName( resource )
-		local tables = database.configuration.automated_resources[ resourceName ]
+		local resources = database.configuration.automated_resources[ resourceName ]
 		
-		if ( tables ) then
-			outputDebugString( "DATABASE: Verification check will be ran on '" .. resourceName .. "' resource (awaiting check on " .. #tables .. " table" .. ( #tables > 1 and "s" or "" ) .. ")." )
+		if ( resources ) then
+			outputDebugString( "DATABASE: Verification check will be ran on '" .. resourceName .. "' resource (awaiting check on " .. #resources .. " table" .. ( #resources > 1 and "s" or "" ) .. ")." )
 			
-			for _,database in ipairs( tables ) do
+			for _,database in ipairs( resources ) do
 				local _return, _code = verify_table( database )
 				
 				if ( _return ) then
