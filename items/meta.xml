@@ -34,6 +34,7 @@
 	<script src="shared/weapons.lua" type="shared" cache="false" />
 	
 	<script src="server/utility.lua" />
+	<script src="server/import_table.lua" />
 	<script src="server/items.lua" />
 	<script src="server/itemuse.lua" />
 	<script src="server/weapons.lua" />
