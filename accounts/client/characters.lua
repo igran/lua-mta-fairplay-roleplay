@@ -423,7 +423,11 @@ addEventHandler( "accounts:showCharacterSelection", root,
 	function( )
 		showCharacterSelection( )
 		
-		exports.superman:setPlayerFlying( localPlayer, false )
+		local resource = getResourceFromName( "superman" )
+
+		if ( resource ) and ( getResourceState( resource ) == "running" ) then
+			exports.superman:setPlayerFlying( localPlayer, false )
+		end
 	end
 )
 
@@ -447,12 +451,16 @@ addEventHandler( "characters:onSpawn", root,
 	function( )
 		setPedCameraRotation( localPlayer, getPedRotation( localPlayer ) - 180 )
 		
-		if ( exports.common:isPlayerServerTrialAdmin( localPlayer ) ) then
-			local x, y, z = getElementPosition( localPlayer )
-			local groundZ = getGroundPosition( x, y, z + 1 )
-			
-			if ( z > groundZ + 4 ) then
-				exports.superman:setPlayerFlying( localPlayer, true )
+		local resource = getResourceFromName( "superman" )
+
+		if ( resource ) and ( getResourceState( resource ) == "running" ) then
+			if ( exports.common:isPlayerServerTrialAdmin( localPlayer ) ) then
+				local x, y, z = getElementPosition( localPlayer )
+				local groundZ = getGroundPosition( x, y, z + 1 )
+				
+				if ( z > groundZ + 4 ) then
+					exports.superman:setPlayerFlying( localPlayer, true )
+				end
 			end
 		end
 		

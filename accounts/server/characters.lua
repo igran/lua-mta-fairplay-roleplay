@@ -228,10 +228,19 @@ function characterSelection( player )
 		removeElementData( player, "character:language_" .. slot )
 		removeElementData( player, "character:language_" .. slot .. "_skill" )
 	end
-	
-	triggerClientEvent( player, "superman:stop", player )
-	triggerClientEvent( player, "scoreboard:hideHUD", player )
-	
+
+	local resource = getResourceFromName( "superman" )
+
+	if ( resource ) and ( getResourceState( resource ) == "running" ) then
+		triggerClientEvent( player, "superman:stop", player )
+	end
+
+	local resource = getResourceFromName( "scoreboard" )
+
+	if ( resource ) and ( getResourceState( resource ) == "running" ) then
+		triggerClientEvent( player, "scoreboard:hideHUD", player )
+	end
+
 	spawnPlayer( player, 0, 0, 0 )
 	setElementDimension( player, 6000 )
 	
@@ -285,8 +294,13 @@ function spawnCharacter( player, character, fade )
 				exports.database:query( "UPDATE `characters` SET `last_played` = CURRENT_TIMESTAMP WHERE `id` = ?", character.id )
 				
 				triggerClientEvent( player, "accounts:hideView", player )
-				triggerClientEvent( player, "scoreboard:showHUD", player )
-				triggerClientEvent( player, "scoreboard:updateHUD", player )
+				
+				local resource = getResourceFromName( "scoreboard" )
+
+				if ( resource ) and ( getResourceState( resource ) == "running" ) then
+					triggerClientEvent( player, "scoreboard:showHUD", player )
+					triggerClientEvent( player, "scoreboard:updateHUD", player )
+				end
 				
 				spawnPlayer( player, character.pos_x, character.pos_y, character.pos_z )
 				

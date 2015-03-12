@@ -101,8 +101,12 @@ function logout( player )
 	removeElementData( player, "account:duty" )
 	removeElementData( player, "player:name" )
 	
-	triggerClientEvent( player, "superman:stop", player )
-	
+	local resource = getResourceFromName( "superman" )
+
+	if ( resource ) and ( getResourceState( resource ) == "running" ) then
+		triggerClientEvent( player, "superman:stop", player )
+	end
+
 	spawnPlayer( player, 0, 0, 0 )
 	setElementDimension( player, 6000 )
 	
