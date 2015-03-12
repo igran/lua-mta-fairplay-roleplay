@@ -36,6 +36,7 @@
 	
 	<script src="server/utility.lua" />
 	<script src="server/faction_admin.lua" />
+	<script src="server/import_table.lua" />
 	<script src="server/interior_admin.lua" />
 	<script src="server/player_admin.lua" />
 	<script src="server/server.lua" />
