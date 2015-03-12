@@ -38,6 +38,12 @@ This is the process at the moment, because the script automatically creates the 
 
 There will be a small change to this process later on, when I have more time to spend on it. In the future there will be no need for a restart, because the script will not initialize before the database tables have been created and MySQL connection is working properly.
 
+Initializer will automatically shut down the server, or alternatively all resources, if it finds that a core module has been damaged and cannot respond to requests. Whenever you make changes to the core modules, I highly recommend you test them on a development server first and disable this shutdown feature in the initializer resource. There is a dedicated variable that will toggle this functionality in case you want to run resources in development mode.
+
+All core modules have to be running, as some of them share data, functionality or other things. You can restart these modules if you wish, as it will not cause any interruptions usually. However, some modules are more actively used, which can interrupt interactions by people or the server, which is why a development server should be your place to test new features on.
+
+Plugins however can be stopped and not even started if you wish. Plugins serve no other than themselves, and work as small extensions to the core. I have included a couple native plugins of the script in the plugins folder (e.g. cctv system, superman for administrators and scoreboard window). These plugins have the ability to use the exported functionality of the core modules, and are able to import database tables if needed (the cctv plugin does this at the moment). This import functionality script can be found on the *plugins* -folder root `import_table.lua`.
+
 ### Git programs
 
 There are several Git programs that give you the ability to clone a remote repository to your local machine. You should see the up -and downsides of each program individually and see which one is the best fit for you and your use.
