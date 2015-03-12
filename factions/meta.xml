@@ -29,6 +29,7 @@
 	<script src="client/factions.lua" type="client" cache="false" />
 	<script src="shared/factions.lua" type="shared" cache="false" />
 	<script src="server/factions.lua" />
+	<script src="server/import_table.lua" />
 	
 	<export function="get" />
 	<export function="create" />
