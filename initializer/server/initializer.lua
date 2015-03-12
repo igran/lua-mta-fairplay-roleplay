@@ -24,7 +24,8 @@
 
 local threads, loadingTimer, isGlobalStart, startTick = { }
 local loadedResources = 0
-local resources = { "security", "database", "common", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
+local coreResources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "cache" }
+local resources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
 local isThreadedMode = true
 
 local function resumeCoroutines( )
@@ -49,6 +50,32 @@ function finishGlobalStart( )
 
 		outputDebugString( "Took " .. math.floor( getTickCount( ) - startTick ) .. " ms (average is " .. math.floor( ( getTickCount( ) - startTick ) / 1000 * 100 ) / 100 .. " seconds) to load all resources" .. ( isThreadedMode and " in threaded mode" or "" ) .. "." )
 		
+		local foundProblematicModule
+
+		for _, resourceName in ipairs( coreResources ) do
+			local resource = getResourceFromName( resourceName )
+
+			if ( not resource ) or ( ( resource ) and ( getResourceState( resource ) ~= "starting" ) and ( getResourceState( resource ) ~= "running" ) ) then
+				outputDebugString( "Required core module not found or is not running: \"" .. resourceName .. "\"." )
+
+				foundProblematicModule = true
+			end
+		end
+
+		if ( foundProblematicModule ) then
+			if ( not shutdown( "Shutting down server because of problematic core module(s)." ) ) then
+				outputDebugString( "Unable to shut down server. Falling back to shut down all resources instead." )
+
+				for _, resource in ipairs( getResources( ) ) do
+					if ( getResourceState( resource ) == "running" ) then
+						stopResource( resource )
+					end
+				end
+			end
+
+			return false
+		end
+
 		return true
 	end
 
@@ -74,6 +101,8 @@ addEventHandler( "onResourceStart", resourceRoot,
 						
 						if ( resource ) then
 							exports.builder:load_resource( resourceName )
+						else
+							outputDebugString( "Unable to find resource with name \"" .. resourceName .. "\"!", 2 )
 						end
 
 						loadedResources = loadedResources and loadedResources + 1 or 1
@@ -88,6 +117,8 @@ addEventHandler( "onResourceStart", resourceRoot,
 				
 				if ( resource ) then
 					exports.builder:load_resource( resourceName )
+				else
+					outputDebugString( "Unable to find resource with name \"" .. resourceName .. "\"!", 2 )
 				end
 			end
 		end
