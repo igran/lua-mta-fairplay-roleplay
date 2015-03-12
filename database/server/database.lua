@@ -102,7 +102,7 @@ function query( queryString, ... )
 	end
 	
 	if ( database.connection ) then
-		local query = (...) and dbQuery( database.connection, queryString, ... ) or dbQuery( database.connection, queryString )
+		local query = ( ... ) and dbQuery( database.connection, queryString, ... ) or dbQuery( database.connection, queryString )
 		
 		if ( query ) then
 			local result, num_affected_rows, last_insert_id = dbPoll( query, -1 )
@@ -143,7 +143,7 @@ function execute( queryString, ... )
 	end
 	
 	if ( database.connection ) then
-		local query = (...) and dbExec( database.connection, queryString, ... ) or dbExec( database.connection, queryString )
+		local query = ( ... ) and dbExec( database.connection, queryString, ... ) or dbExec( database.connection, queryString )
 		
 		if ( query ) then
 			return true
