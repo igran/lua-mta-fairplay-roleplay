@@ -29,8 +29,8 @@
 	<script src="client/cctv.lua" type="client" cache="false" />
 	<script src="client/monitor.lua" type="client" cache="false" />
 	<script src="server/cctv.lua" />
-	<script src="server/monitor.lua" />
 	<script src="server/import_table.lua" />
+	<script src="server/monitor.lua" />
 	
 	<file src="assets/rec.png" />
 	<file src="assets/rec_text.png" />
