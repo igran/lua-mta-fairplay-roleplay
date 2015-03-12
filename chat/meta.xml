@@ -30,6 +30,7 @@
 	<script src="client/chat.lua" type="client" cache="false" />
 	<script src="shared/languages.lua" type="shared" cache="false" />
 	<script src="server/chat.lua" />
+	<script src="server/import_table.lua" />
 	
 	<export function="outputChatBox" />
 	<export function="outputLocalChat" />
