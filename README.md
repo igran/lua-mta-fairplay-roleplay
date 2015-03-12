@@ -6,7 +6,9 @@ FairPlay Gaming is a gaming community created in December 2010. We enjoy playing
 
 This is a Multi Theft Auto Roleplay gamemode, designed specifically for FairPlay Gaming. This script is based on modules, which extend each others functionality and combine to make the gamemode actually happen. Core modules run the server, and plugins add more freedom for developers to create other systems on top of the main layer. These two layers are able to communicate with each other and extend each other. This is a powerful and efficient way to run a server, because you can slide one module out, patch it, slide it back in and it will be compatible.
 
-I highly recommend installing Git on your servers and running both live and development servers simultaneously on separate databases. This way you have the greatness of Git at hand, and good development process going on – and then you can just tuck the release version to the live server by taking it offline and then restarting it a minute afterwards. Fast, simple and efficient.
+I highly recommend installing Git on your servers and running both live and development servers simultaneously on separate databases and branches – live on master, and development on its own branch. This way you have the greatness of Git at hand, and good development process going on – and then you can just tuck the release version to the live server by taking it offline and then restarting it a minute afterwards. Fast, simple and efficient.
+
+I do not give any direct assistance with Git server communications, but you can find good solutions and documentation on how to do that online with step-by-step tutorials. I highly recommend doing this, as it is really worth it.
 
 **Please note**, that this is in development, and should not be used for anything yet! You can mark issues and make pull requests. This script is missing some features, which is exactly why this should not be used yet.
 
