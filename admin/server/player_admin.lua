@@ -156,13 +156,13 @@ addCommandHandler( { "makeadmin", "setlevel", "setadminlevel" },
 						exports.database:query( "UPDATE `accounts` SET `level` = ? WHERE `id` = ?", level, exports.common:getCharacterID( targetPlayer ) )
 						
 						if ( level > 0 ) then
-							exports.listener:trigger( "admin:onLevelChanged", targetPlayer, level )
+							exports.listeners:trigger( "admin:onLevelChanged", targetPlayer, level )
 							
 							triggerClientEvent( targetPlayer, "admin:showHUD", targetPlayer )
 							triggerClientEvent( root, "admin:updateHUD", root )
 						else
-							exports.listener:trigger( "admin:onLevelRemoved", targetPlayer )
-							exports.listener:trigger( "admin:onLevelChanged", targetPlayer, level )
+							exports.listeners:trigger( "admin:onLevelRemoved", targetPlayer )
+							exports.listeners:trigger( "admin:onLevelChanged", targetPlayer, level )
 
 							triggerClientEvent( targetPlayer, "admin:hideHUD", targetPlayer )
 						end
