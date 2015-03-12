@@ -37,6 +37,7 @@
 	<script src="server/accounts.lua" />
 	<script src="server/characters.lua" />
 	<script src="server/id.lua" />
+	<script src="server/import_table.lua" />
 	<script src="server/tutorial.lua" />
 	
 	<export function="get" />
