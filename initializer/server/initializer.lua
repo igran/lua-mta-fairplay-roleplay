@@ -24,9 +24,15 @@
 
 local threads, loadingTimer, isGlobalStart, startTick = { }
 local loadedResources = 0
-local coreResources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "cache" }
-local resources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "scoreboard", "superman", "cache" }
 local isThreadedMode = true
+local coreResources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "cache" }
+local resources = { "listeners", "common", "security", "database", "messages", "accounts", "admin", "realism", "items", "inventory", "weapons", "chat", "bank", "vehicles", "interiors", "factions", "shops", "cache" }
+
+-- optional plugins
+-- can be removed from this file if you don't want to use them
+table.insert( resources, "scoreboard" )
+table.insert( resources, "superman" )
+--
 
 local function resumeCoroutines( )
 	for _, loadCoroutine in ipairs( threads ) do
