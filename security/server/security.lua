@@ -22,7 +22,6 @@
 	SOFTWARE.
 ]]
 
-local cleanedFunctions = { setElementData = setElementData, getElementData = getElementData, removeElementData = removeElementData }
 local keyCharsLength = 64
 local serverKey = ""
 
@@ -75,11 +74,11 @@ local function getHashedDataKey( string )
 end
 
 local function isDataSynchronized( element, key )
-	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":synchronized:" .. getServerKey( true ) )
+	return getElementData( source, getHashedDataKey( key ) .. ":synchronized:" .. getServerKey( true ) )
 end
 
 local function isDataProtected( element, key )
-	return cleanedFunctions.getElementData( source, getHashedDataKey( key ) .. ":protected:" .. getServerKey( true ) )
+	return getElementData( source, getHashedDataKey( key ) .. ":protected:" .. getServerKey( true ) )
 end
 
 function modifyElementData( element, key, value, synchronized )
@@ -87,16 +86,16 @@ function modifyElementData( element, key, value, synchronized )
 		local hashedKey = getHashedDataKey( key )
 		local clearElementData = value == nil and true or false
 		
-		cleanedFunctions.setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), false, false )
+		setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), false, false )
 		
 		if ( clearElementData ) then
-			cleanedFunctions.removeElementData( element, key )
-			cleanedFunctions.removeElementData( element, hashedKey .. ":protected:" .. getServerKey( true ) )
-			cleanedFunctions.removeElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ) )
+			removeElementData( element, key )
+			removeElementData( element, hashedKey .. ":protected:" .. getServerKey( true ) )
+			removeElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ) )
 		else
-			cleanedFunctions.setElementData( element, key, value, synchronized )
-			cleanedFunctions.setElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ), synchronized, false )
-			cleanedFunctions.setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), true, false )
+			setElementData( element, key, value, synchronized )
+			setElementData( element, hashedKey .. ":synchronized:" .. getServerKey( true ), synchronized, false )
+			setElementData( element, hashedKey .. ":protected:" .. getServerKey( true ), true, false )
 		end
 		
 		return true
@@ -110,7 +109,7 @@ addEventHandler( "onElementDataChange", root,
 		local hashedKey = getHashedDataKey( key )
 		
 		if ( isDataProtected( source, key ) ) then
-			local attemptedValue = cleanedFunctions.getElementData( source, key )
+			local attemptedValue = getElementData( source, key )
 			
 			modifyElementData( source, key, oldValue, isDataSynchronized( source, key ) )
 			
